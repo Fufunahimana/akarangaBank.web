@@ -5,48 +5,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity; 
 using Microsoft.AspNetCore.Mvc.Authorization; 
 using Microsoft.EntityFrameworkCore; 
-using MySqlConnector;
 
 var builder = WebApplication.CreateBuilder(args); 
  
 // --- Base de données (MariaDB / MySqlConnector) --- 
 var connectionString = builder.Configuration.GetConnectionString("AkarangaBank");
-if (string.IsNullOrWhiteSpace(connectionString))
+if (!string.IsNullOrWhiteSpace(connectionString))
 {
-    var mysqlHost = builder.Configuration["MYSQLHOST"];
-    var mysqlDatabase = builder.Configuration["MYSQLDATABASE"];
-    var mysqlUser = builder.Configuration["MYSQLUSER"];
-    var mysqlPassword = builder.Configuration["MYSQLPASSWORD"];
-    var mysqlPort = builder.Configuration["MYSQLPORT"];
-
-    if (string.IsNullOrWhiteSpace(mysqlHost)
-        || string.IsNullOrWhiteSpace(mysqlDatabase)
-        || string.IsNullOrWhiteSpace(mysqlUser)
-        || string.IsNullOrWhiteSpace(mysqlPassword))
-    {
-        throw new InvalidOperationException(
-            "La chaîne de connexion 'AkarangaBank' est absente. Sur Railway, définissez " +
-            "ConnectionStrings__AkarangaBank ou liez MYSQLHOST, MYSQLDATABASE, MYSQLUSER et " +
-            "MYSQLPASSWORD au service web depuis le service MySQL.");
-    }
-
-    var railwayConnection = new MySqlConnectionStringBuilder
-    {
-        Server = mysqlHost,
-        Database = mysqlDatabase,
-        UserID = mysqlUser,
-        Password = mysqlPassword
-    };
-
-    if (!string.IsNullOrWhiteSpace(mysqlPort))
-    {
-        if (!uint.TryParse(mysqlPort, out var port) || port == 0)
-            throw new InvalidOperationException("La variable Railway MYSQLPORT doit être un port valide.");
-
-        railwayConnection.Port = port;
-    }
-
-    connectionString = railwayConnection.ConnectionString;
+    connectionString = RailwayMySqlConfiguration.NormalizeConnectionString(connectionString);
+}
+else
+{
+    connectionString = RailwayMySqlConfiguration.GetConnectionString(builder.Configuration);
 }
 
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();

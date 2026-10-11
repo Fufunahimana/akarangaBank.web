@@ -47,14 +47,18 @@ Pour lancer ce projet en local, suivez les étapes ci-dessous :
 
 ## Déploiement sur Railway
 
-Ajoutez un service MySQL au projet Railway, puis liez ses variables au service web dans **Variables**. Créez les références suivantes en remplaçant `MySQL` par le nom exact de votre service de base de données :
+Ajoutez un service MariaDB ou MySQL au projet Railway. Les variables d'un service de base de données ne sont pas automatiquement disponibles dans le service web : il faut les référencer dans les variables du service web.
+
+Dans **service web → Variables**, ajoutez `ConnectionStrings__AkarangaBank`. Pour un service MariaDB qui fournit `MARIADB_PRIVATE_URL`, utilisez cette valeur (remplacez `MariaDB` par le nom exact de votre service) :
 
 ```text
-MYSQLHOST=${{MySQL.MYSQLHOST}}
-MYSQLPORT=${{MySQL.MYSQLPORT}}
-MYSQLDATABASE=${{MySQL.MYSQLDATABASE}}
-MYSQLUSER=${{MySQL.MYSQLUSER}}
-MYSQLPASSWORD=${{MySQL.MYSQLPASSWORD}}
+ConnectionStrings__AkarangaBank=${{MariaDB.MARIADB_PRIVATE_URL}}
 ```
 
-L'application construit la chaîne de connexion à partir de ces variables si `ConnectionStrings__AkarangaBank` n'est pas défini. Vous pouvez aussi définir directement cette dernière variable avec une chaîne MySQL valide. Ne stockez pas les identifiants de la base dans les fichiers du dépôt.
+Pour le service MySQL Railway, référencez `MYSQL_URL` à la place :
+
+```text
+ConnectionStrings__AkarangaBank=${{MySQL.MYSQL_URL}}
+```
+
+L'application accepte aussi les variables individuelles `MYSQL*` et `MARIADB_*`. Après l'ajout de la référence, appliquez les changements en attente et redéployez le service web. Vous pouvez aussi définir directement `ConnectionStrings__AkarangaBank` avec une chaîne de connexion MySqlConnector valide. Ne stockez pas les identifiants de la base dans les fichiers du dépôt.
