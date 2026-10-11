@@ -1,0 +1,134 @@
+@model AkarangaBank.Web.ViewModels.ClientDetailsViewModel
+
+@{
+    var client = Model.Client;
+    var statusBadgeClass = client.Statut == "Actif" ? "bank-badge-success" : "bank-badge-warning";
+    ViewData["Title"] = $"Détails de {client.Nom} {client.Prenom}";
+}
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div>
+            <h1>Détails du client</h1>
+            <p>@client.NumeroClient · @client.Nom @client.Prenom</p>
+        </div>
+        <div class="bank-actions">
+            <a asp-action="Edit" asp-route-id="@client.Id" class="bank-btn bank-btn-light">Modifier</a>
+            <a asp-action="Index" class="bank-btn bank-btn-secondary">Retour à la liste</a>
+        </div>
+    </header>
+
+    <div class="bank-page-body">
+        <h2 class="bank-section-title">Informations du client</h2>
+        <dl class="bank-details">
+            <dt>Numéro client</dt>
+            <dd>@client.NumeroClient</dd>
+
+            <dt>Nom complet</dt>
+            <dd>@client.Nom @client.Prenom</dd>
+
+            <dt>Date de naissance</dt>
+            <dd>@client.DateNaissance.ToString("dd/MM/yyyy")</dd>
+
+            <dt>Numéro CNI</dt>
+            <dd>@client.NumeroCNI</dd>
+
+            <dt>Téléphone</dt>
+            <dd>@(client.Telephone ?? "—")</dd>
+
+            <dt>Email</dt>
+            <dd>@(client.Email ?? "—")</dd>
+
+            <dt>Adresse</dt>
+            <dd>@(client.Adresse ?? "—")</dd>
+
+            <dt>Agence</dt>
+            <dd>@(client.Agence is null ? "—" : $"{client.Agence.Code} — {client.Agence.Nom}")</dd>
+
+            <dt>Statut</dt>
+            <dd><span class="bank-badge @statusBadgeClass">@client.Statut</span></dd>
+        </dl>
+
+        <div class="bank-summary" style="margin-top:24px">
+            <div class="bank-summary-card">
+                <span>Comptes bancaires</span>
+                <strong>@Model.Comptes.Count()</strong>
+            </div>
+            <div class="bank-summary-card">
+                <span>Solde total</span>
+                <strong>@Model.SoldeTotal.ToString("N2") BIF</strong>
+            </div>
+            <div class="bank-summary-card">
+                <span>Vérifications KYC</span>
+                <strong>@Model.VerificationsKYC.Count()</strong>
+            </div>
+        </div>
+
+        <h2 class="bank-section-title">Comptes bancaires</h2>
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead>
+                    <tr>
+                        <th>Numéro</th>
+                        <th>Type</th>
+                        <th>Devise</th>
+                        <th style="text-align:right">Solde</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Comptes.Any())
+                    {
+                        @foreach (var compte in Model.Comptes)
+                        {
+                            <tr>
+                                <td>@compte.NumeroCompte</td>
+                                <td>@(compte.TypeCompte?.Libelle ?? "—")</td>
+                                <td>@compte.Devise</td>
+                                <td style="text-align:right">@compte.Solde.ToString("N2")</td>
+                                <td>@compte.Statut</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="5" class="bank-empty">Aucun compte bancaire pour ce client.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="bank-section-title">Vérifications KYC</h2>
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead>
+                    <tr>
+                        <th>Document</th>
+                        <th>Statut</th>
+                        <th>Date de vérification</th>
+                        <th>Vérifié par</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.VerificationsKYC.Any())
+                    {
+                        @foreach (var verification in Model.VerificationsKYC)
+                        {
+                            <tr>
+                                <td>@verification.TypeDocument</td>
+                                <td>@verification.Statut</td>
+                                <td>@(verification.DateVerification.HasValue ? BankTime.ToLocal(verification.DateVerification.Value).ToString("dd/MM/yyyy") : "—")</td>
+                                <td>@(verification.VerifiePar?.NomComplet ?? "—")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="4" class="bank-empty">Aucune vérification KYC enregistrée.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

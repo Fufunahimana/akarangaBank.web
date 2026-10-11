@@ -1,0 +1,18 @@
+@model AkarangaBank.Web.ViewModels.VirementInterAgenceViewModel
+@{ ViewData["Title"] = "Virement inter-agences"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Virement inter-agences</h1><p>Transfert soumis à validation avant comptabilisation.</p></div></header>
+    <div class="bank-page-body">
+        <form asp-action="Initier" method="post" class="bank-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="bank-form-group"><label asp-for="CompteSourceId" class="bank-label"></label><select asp-for="CompteSourceId" asp-items="ViewBag.ComptesSource" class="bank-control"><option value="">-- Sélectionner --</option></select><span asp-validation-for="CompteSourceId" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="CompteDestinationId" class="bank-label"></label><select asp-for="CompteDestinationId" asp-items="ViewBag.ComptesDestination" class="bank-control"><option value="">-- Sélectionner --</option></select><span asp-validation-for="CompteDestinationId" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="Montant" class="bank-label">Montant (BIF)</label><input asp-for="Montant" class="bank-control" type="number" min="0.01" step="0.01" /><span asp-validation-for="Montant" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="Motif" class="bank-label"></label><input asp-for="Motif" class="bank-control" maxlength="500" /><span asp-validation-for="Motif" class="text-danger"></span></div>
+            <div class="bank-actions"><button type="submit" class="bank-btn bank-btn-primary">Initier le virement</button><a asp-action="Index" class="bank-btn bank-btn-secondary">Annuler</a></div>
+        </form>
+    </div>
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,24 @@
+@model AkarangaBank.Web.Models.Operation
+@{ ViewData["Title"] = "Détail de l'opération"; }
+<partial name="_OperationsStyles" />
+
+@{
+    var debits = Model.Ecritures.Where(e => e.Sens == "Debit").Sum(e => e.Montant);
+    var credits = Model.Ecritures.Where(e => e.Sens == "Credit").Sum(e => e.Montant);
+}
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Opération @Model.Reference</h1><p>@Model.TypeOperation · @Model.Statut</p></div><a asp-action="Journal" class="bank-btn bank-btn-light">Retour au journal</a></header>
+    <div class="bank-page-body">
+        <dl class="bank-details"><dt>Date</dt><dd>@BankTime.ToLocal(Model.DateOperation).ToString("dd/MM/yyyy HH:mm")</dd><dt>Compte</dt><dd>@Model.Compte.NumeroCompte · @Model.Compte.Client.Nom @Model.Compte.Client.Prenom</dd><dt>Montant</dt><dd>@Model.Montant.ToString("N2") @Model.Devise</dd><dt>Statut</dt><dd>@Model.Statut</dd></dl>
+        <h2 class="bank-section-title">Écritures comptables (@Model.Ecritures.Count)</h2>
+        <div class="bank-table-wrap"><table class="bank-table"><thead><tr><th>Sens</th><th>Compte</th><th>Compte général</th><th>Libellé</th><th class="text-end">Montant</th></tr></thead><tbody>
+        @foreach (var ecriture in Model.Ecritures.OrderBy(e => e.Id))
+        {
+            <tr><td>@ecriture.Sens</td><td>@(ecriture.Compte?.NumeroCompte ?? "—")</td><td>@ecriture.CodeCompteGeneral</td><td>@ecriture.Libelle</td><td class="text-end">@ecriture.Montant.ToString("N2") @ecriture.Devise</td></tr>
+        }
+        <tr><th colspan="4" class="text-end">Total Débit</th><th class="text-end">@debits.ToString("N2") @Model.Devise</th></tr>
+        <tr><th colspan="4" class="text-end">Total Crédit</th><th class="text-end">@credits.ToString("N2") @Model.Devise</th></tr>
+        </tbody></table></div>
+        @if (debits != credits) { <div class="bank-flash-error" role="alert">Les écritures de cette opération ne sont pas équilibrées.</div> }
+    </div>
+</section>

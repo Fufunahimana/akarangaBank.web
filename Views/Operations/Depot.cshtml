@@ -1,0 +1,39 @@
+@model AkarangaBank.Web.ViewModels.DepotViewModel
+@{ ViewData["Title"] = "Dépôt"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div><h1>Dépôt</h1><p>Créditer un compte actif</p></div>
+        <a asp-action="Journal" class="bank-btn bank-btn-light">Voir le journal</a>
+    </header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string msg) { <div class="bank-flash" role="status">@msg</div> }
+        <form asp-action="Depot" method="post" class="bank-form">
+            <div asp-validation-summary="ModelOnly" class="bank-validation"></div>
+            <div class="bank-form-group">
+                <label asp-for="CompteId" class="bank-label">Compte</label>
+                <select asp-for="CompteId" asp-items="ViewBag.Comptes" class="bank-control">
+                    <option value="">-- Sélectionner un compte --</option>
+                </select>
+                <span asp-validation-for="CompteId" class="bank-validation"></span>
+            </div>
+            <div class="bank-form-group">
+                <label asp-for="Montant" class="bank-label">Montant (BIF)</label>
+                <input asp-for="Montant" class="bank-control" type="number" min="0.01" step="0.01" />
+                <span asp-validation-for="Montant" class="bank-validation"></span>
+            </div>
+            <div class="bank-form-group">
+                <label asp-for="Commentaire" class="bank-label">Commentaire</label>
+                <textarea asp-for="Commentaire" class="bank-control" rows="3"></textarea>
+                <span asp-validation-for="Commentaire" class="bank-validation"></span>
+            </div>
+            <div class="bank-actions">
+                <button type="submit" class="bank-btn bank-btn-primary">Enregistrer le dépôt</button>
+                <a asp-action="Journal" class="bank-btn bank-btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

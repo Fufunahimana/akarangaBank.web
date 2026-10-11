@@ -1,0 +1,14 @@
+@model IEnumerable<AkarangaBank.Web.Models.VirementInterAgence>
+@{ ViewData["Title"] = "Historique des virements inter-agences"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Historique des virements inter-agences</h1></div><a asp-action="Index" class="bank-btn bank-btn-light">En attente</a></header>
+    <div class="bank-page-body">
+        <form method="get" class="bank-filter"><div class="bank-form-group"><label class="bank-label" for="du">Du</label><input class="bank-control" type="date" id="du" name="du" value="@ViewBag.Du?.ToString("yyyy-MM-dd")" /></div><div class="bank-form-group"><label class="bank-label" for="au">Au</label><input class="bank-control" type="date" id="au" name="au" value="@ViewBag.Au?.ToString("yyyy-MM-dd")" /></div><button class="bank-btn bank-btn-primary" type="submit">Filtrer</button></form>
+        <div class="bank-table-wrap"><table class="bank-table"><thead><tr><th>Date</th><th>Référence</th><th>Source</th><th>Destination</th><th>Montant</th><th>Statut</th><th>Motif de rejet</th></tr></thead><tbody>
+        @foreach (var v in Model) { <tr><td>@BankTime.ToLocal(v.DateCreation).ToString("dd/MM/yyyy HH:mm")</td><td>@v.Reference</td><td>@v.AgenceSource.Code</td><td>@v.AgenceDestination.Code</td><td>@v.Montant.ToString("N2") @v.Devise</td><td>@v.Statut</td><td>@v.MotifRejet</td></tr> }
+        @if (!Model.Any()) { <tr><td colspan="7" class="bank-empty">Aucun résultat.</td></tr> }
+        </tbody></table></div>
+    </div>
+</section>

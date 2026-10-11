@@ -1,0 +1,157 @@
+@model AkarangaBank.Web.ViewModels.AgenceCreateViewModel
+
+@{
+    ViewData["Title"] = "Nouvelle agence";
+}
+
+<style>
+    .bank-form-container {
+        max-width: 650px;
+        margin: 40px auto;
+        background: hsl(0, 0%, 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .bank-form-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 25px;
+    }
+    .bank-form-header h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .bank-form-header p {
+        margin: 5px 0 0;
+        opacity: 0.85;
+        font-size: 0.95rem;
+    }
+    .bank-form-body {
+        padding: 30px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    .form-control-custom {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control-custom:focus {
+        border-color: #0d6efd;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    .form-check-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .form-check-input-custom {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    .text-danger {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        display: block;
+    }
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+    }
+    .btn-submit {
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-submit:hover {
+        background-color: #0b5ed7;
+    }
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.2s;
+    }
+    .btn-cancel:hover {
+        background-color: #5c636a;
+        color: white;
+    }
+</style>
+
+<div class="bank-form-container">
+    <div class="bank-form-header">
+        <h2>AkarangaBank</h2>
+        <p>Créer une nouvelle agence</p>
+    </div>
+
+    <div class="bank-form-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 20px;"></div>
+
+            <div class="form-group">
+                <label asp-for="Code" class="form-label">Code de l'agence</label>
+                <input asp-for="Code" class="form-control-custom" placeholder="Ex: AKR-XXX" />
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Nom" class="form-label">Nom de l'agence</label>
+                <input asp-for="Nom" class="form-control-custom" placeholder="Ex: Akaranga Bank Nom..." />
+                <span asp-validation-for="Nom" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Ville" class="form-label">Ville</label>
+                <input asp-for="Ville" class="form-control-custom" placeholder="Ex: Bujumbura" />
+                <span asp-validation-for="Ville" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <div class="form-check-container">
+                    <input asp-for="EstSiege" class="form-check-input-custom" type="checkbox" id="EstSiegeCheck" />
+                    <label class="form-label" for="EstSiegeCheck" style="margin-bottom: 0; cursor: pointer;">Est-ce le Siège principal ?</label>
+                </div>
+                <span asp-validation-for="EstSiege" class="text-danger"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Enregistrer</button>
+                <a asp-action="Index" class="btn-cancel">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

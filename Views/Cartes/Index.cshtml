@@ -1,0 +1,31 @@
+@model IReadOnlyList<AkarangaBank.Web.Models.Carte>
+@{ ViewData["Title"] = "Cartes bancaires"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div><h1>Cartes bancaires</h1><p>Cartes, plafonds et transactions associées</p></div>
+        @if (User.IsInRole("admin")) { <a asp-action="Create" class="bank-btn bank-btn-light">Émettre une carte</a> }
+    </header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
+        @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead><tr><th>Carte</th><th>Client</th><th>Compte</th><th>Type</th><th>Expiration</th><th>Statut</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var carte in Model)
+                {
+                    <tr>
+                        <td><strong>@carte.NumeroCarteMasque</strong></td><td>@carte.Client.Nom @carte.Client.Prenom</td>
+                        <td>@carte.Compte.NumeroCompte</td><td>@carte.TypeCarte</td><td>@carte.DateExpiration.ToString("MM/yyyy")</td>
+                        <td><span class="bank-badge @(carte.Statut == "Active" ? "bank-badge-success" : "bank-badge-danger")">@carte.Statut</span></td>
+                        <td><a asp-action="Details" asp-route-id="@carte.Id" class="bank-btn bank-btn-secondary">Détails et historique</a></td>
+                    </tr>
+                }
+                @if (Model.Count == 0) { <tr><td colspan="7" class="bank-empty">Aucune carte bancaire enregistrée.</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

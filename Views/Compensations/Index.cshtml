@@ -1,0 +1,27 @@
+@model IEnumerable<AkarangaBank.Web.Models.CompensationAgence>
+@{ ViewData["Title"] = "Compensations inter-agences"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Compensations inter-agences</h1><p>Calcul quotidien des soldes de compensation par agence.</p></div></header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
+        @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }
+        <form asp-action="Calculer" method="post" class="bank-filter">
+            <div class="bank-form-group"><label class="bank-label" for="agenceId">Agence à calculer</label><select class="bank-control" name="agenceId" id="agenceId" asp-items="ViewBag.Agences"><option value="">-- Sélectionner --</option></select></div>
+            <div class="bank-form-group"><label class="bank-label" for="date">Date</label><input class="bank-control" type="date" id="date" name="date" value="@((DateTime)ViewBag.Date).ToString("yyyy-MM-dd")" /></div>
+            <button class="bank-btn bank-btn-primary" type="submit">Calculer la compensation</button>
+        </form>
+        <div class="bank-flash @(ViewBag.Equilibree ? "" : "bank-flash-warning")" role="status">
+            Totaux de la journée, toutes agences : débits @(((decimal)ViewBag.TotalDebitsJour).ToString("N2")) BIF ; crédits @(((decimal)ViewBag.TotalCreditsJour).ToString("N2")) BIF.
+            @(ViewBag.Equilibree ? "Les compensations enregistrées sont équilibrées." : "Les compensations enregistrées nécessitent un contrôle d'équilibre.")
+        </div>
+        <div class="bank-table-wrap"><table class="bank-table"><thead><tr><th>Date</th><th>Référence</th><th>Agence</th><th class="text-end">Débits</th><th class="text-end">Crédits</th><th class="text-end">Solde</th><th>Statut</th><th></th></tr></thead><tbody>
+        @foreach (var c in Model)
+        {
+            <tr><td>@c.DateCompensation.ToString("dd/MM/yyyy")</td><td>@c.Reference</td><td>@c.Agence.Code</td><td class="text-end">@c.TotalDebits.ToString("N2")</td><td class="text-end">@c.TotalCredits.ToString("N2")</td><td class="text-end">@c.Solde.ToString("N2")</td><td>@c.Statut</td><td>@if (c.Statut != "Regle") { <form asp-action="Regler" asp-route-id="@c.Id" method="post"><button class="bank-btn bank-btn-secondary" type="submit">Régler</button></form> }</td></tr>
+        }
+        @if (!Model.Any()) { <tr><td colspan="8" class="bank-empty">Aucune compensation pour ces critères.</td></tr> }
+        </tbody></table></div>
+    </div>
+</section>

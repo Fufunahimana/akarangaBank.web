@@ -1,0 +1,11 @@
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.csproj.AssemblyReference.cache
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\rpswa.dswa.cache.json
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.GeneratedMSBuildEditorConfig.editorconfig
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.AssemblyInfoInputs.cache
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.AssemblyInfo.cs
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.csproj.CoreCompileInputs.cache
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.MvcApplicationPartsAssemblyInfo.cs
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.MvcApplicationPartsAssemblyInfo.cache
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.RazorAssemblyInfo.cache
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.RazorAssemblyInfo.cs
+D:\csharptest\akarangaBank\AkarangaBank.Web\obj\validation\Debug\net9.0\AkarangaBank.Web.sourcelink.json

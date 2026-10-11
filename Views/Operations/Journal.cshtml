@@ -1,0 +1,82 @@
+@model AkarangaBank.Web.ViewModels.JournalViewModel
+@{ ViewData["Title"] = "Journal des opérations"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div><h1>Journal des opérations</h1><p>@Model.Total opération(s) enregistrée(s)</p></div>
+        @if (User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier"))
+        {
+            <div class="bank-actions">
+                <a asp-action="Depot" class="bank-btn bank-btn-light">Nouveau dépôt</a>
+                <a asp-action="Retrait" class="bank-btn bank-btn-light">Nouveau retrait</a>
+                <a asp-action="Virement" class="bank-btn bank-btn-light">Nouveau virement</a>
+                @if (User.IsInRole("admin") || User.IsInRole("gestionnaire"))
+                {
+                    <a asp-controller="Conformite" asp-action="Alertes" class="bank-btn bank-btn-secondary">Consulter les alertes AML</a>
+                }
+            </div>
+        }
+    </header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string msg) { <div class="bank-flash" role="status">@msg</div> }
+        <form method="get" class="bank-filter">
+            <div class="bank-form-group">
+                <label for="du" class="bank-label">Du</label>
+                <input id="du" type="date" name="du" value="@Model.Du?.ToString("yyyy-MM-dd")" class="bank-control" />
+            </div>
+            <div class="bank-form-group">
+                <label for="au" class="bank-label">Au</label>
+                <input id="au" type="date" name="au" value="@Model.Au?.ToString("yyyy-MM-dd")" class="bank-control" />
+            </div>
+            <div class="bank-form-group">
+                <label asp-for="TypeOperation" class="bank-label">Type</label>
+                <select asp-for="TypeOperation" class="bank-control">
+                    <option value="">Tous les types</option>
+                    <option value="Depot">Dépôt</option>
+                    <option value="Retrait">Retrait</option>
+                    <option value="Virement">Virement</option>
+                    <option value="Frais">Frais</option>
+                </select>
+            </div>
+            <button type="submit" class="bank-btn bank-btn-primary">Filtrer</button>
+        </form>
+        <div class="bank-table-wrap">
+                    <table class="bank-table">
+                <thead><tr><th>Date</th><th>Référence</th><th>Type</th><th>Compte</th><th style="text-align:right">Montant</th><th>Statut</th><th>Détails</th><th></th></tr></thead>
+                <tbody>
+                @if (Model.Operations.Any())
+                {
+                    @foreach (var op in Model.Operations)
+                    {
+                        <tr>
+                            <td>@BankTime.ToLocal(op.DateOperation).ToString("dd/MM/yyyy HH:mm")</td>
+                            <td><strong>@op.Reference</strong></td>
+                            <td>@(op.TypeOperation == "Depot" ? "Dépôt" : op.TypeOperation)</td>
+                            <td>@op.Compte.NumeroCompte</td>
+                            <td style="text-align:right">@op.Montant.ToString("N2") @op.Devise</td>
+                            <td><span class="bank-badge @(op.Statut == "Valide" ? "bank-badge-success" : op.Statut == "EnAttente" ? "bank-badge-warning" : "bank-badge-info")">@op.Statut</span></td>
+                            <td>@if (User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier")) { <a asp-action="Details" asp-route-id="@op.Id" class="bank-btn bank-btn-secondary">Écritures (@op.Ecritures.Count)</a> }</td><td><a asp-action="Releve" asp-route-id="@op.CompteId" class="bank-btn bank-btn-secondary">Relevé</a></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="8" class="bank-empty">Aucune opération pour ces critères.</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        @if (Model.TotalPages > 1)
+        {
+            <nav aria-label="Pagination du journal" class="bank-actions">
+                @for (var i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a class="bank-btn @(i == Model.Page ? "bank-btn-primary" : "bank-btn-secondary")"
+                       asp-action="Journal" asp-route-page="@i" asp-route-du="@Model.Du?.ToString("yyyy-MM-dd")"
+                       asp-route-au="@Model.Au?.ToString("yyyy-MM-dd")" asp-route-typeOperation="@Model.TypeOperation">@i</a>
+                }
+            </nav>
+        }
+    </div>
+</section>

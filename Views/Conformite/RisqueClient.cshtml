@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "Évaluation du risque client";
+    var risque = ViewBag.Risque?.ToString() ?? "Inconnu";
+    var badge = risque == "Eleve" ? "bank-badge-danger" : risque == "Moyen" ? "bank-badge-warning" : "bank-badge-success";
+}
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Évaluation du risque client</h1><p>Client n° @ViewBag.ClientId</p></div></header>
+    <div class="bank-page-body">
+        <div class="bank-summary-card">
+            <span>Niveau de risque</span>
+            <strong><span class="bank-badge @badge">@risque</span></strong>
+        </div>
+        <div class="bank-actions"><a asp-controller="Clients" asp-action="Details" asp-route-id="@ViewBag.ClientId" class="bank-btn bank-btn-secondary">Retour au client</a></div>
+    </div>
+</section>

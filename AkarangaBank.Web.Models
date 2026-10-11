@@ -1,0 +1,57 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using AkarangaBank.Web.Models;
+
+namespace AkarangaBank.Web.Services
+{
+    public class UserService
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public UserService(UserManager<ApplicationUser> userManager)
+        {
+            _userManager = userManager;
+        }
+
+        // Récupérer tous les utilisateurs avec leur agence liée
+        public async Task<List<ApplicationUser>> GetAllUsersAsync()
+        {
+            return await _userManager.Users
+                .Include(u => u.Agence)
+                .OrderBy(u => u.UserName)
+                .ToListAsync();
+        }
+
+        // Récupérer un utilisateur par son ID (en string, standard Identity)
+        public async Task<ApplicationUser?> GetByIdAsync(string id)
+        {
+            return await _userManager.Users
+                .Include(u => u.Agence)
+                .FirstOrDefaultAsync(u => u.Id == id);
+        }
+
+        // Créer un utilisateur et lui assigner son rôle et son agence
+        public async Task<(bool Success, string? Error)> CreateAsync(ApplicationUser vm, string password, string role)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = vm.Email,
+                Email = vm.Email,
+                AgenceId = vm.AgenceId,
+                EstActif = true
+            };
+
+            var result = await _userManager.CreateAsync(user, password);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return (false, errors);
+            }
+
+            // Assigner le rôle via l'API Identity
+            await _userManager.AddToRoleAsync(user, role);
+
+            return (true, null);
+        }
+    }
+}

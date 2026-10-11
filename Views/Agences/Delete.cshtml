@@ -1,0 +1,134 @@
+@model AkarangaBank.Web.Models.Agence
+
+@{
+    ViewData["Title"] = "Supprimer l'agence";
+}
+
+<style>
+    .bank-delete-container {
+        max-width: 650px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .bank-delete-header {
+        background-color: #dc3545;
+        color: white;
+        padding: 25px;
+    }
+    .bank-delete-header h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .bank-delete-header p {
+        margin: 5px 0 0;
+        opacity: 0.85;
+        font-size: 0.95rem;
+    }
+    .bank-delete-body {
+        padding: 30px;
+    }
+    .alert-warning-custom {
+        background-color: #f8d7da;
+        color: #842029;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #f5c2c7;
+        margin-bottom: 25px;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    .details-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+    }
+    .details-table th, .details-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 0.95rem;
+    }
+    .details-table th {
+        width: 30%;
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: 600;
+        text-align: left;
+    }
+    .details-table td {
+        color: #495057;
+    }
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        border-top: 1px solid #dee2e6;
+        padding-top: 20px;
+    }
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-delete:hover {
+        background-color: #bb2d3b;
+    }
+    .btn-cancel {
+        background-color: #f8f9fa;
+        color: #495057;
+        border: 1px solid #ced4da;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    .btn-cancel:hover {
+        background-color: #e2e6ea;
+    }
+</style>
+
+<div class="bank-delete-container">
+    <div class="bank-delete-header">
+        <h2>AkarangaBank</h2>
+        <p>Supprimer l'agence</p>
+    </div>
+
+    <div class="bank-delete-body">
+        <div class="alert-warning-custom">
+            Confirmez-vous la suppression de cette agence ? Cette action est irréversible.
+        </div>
+
+        <table class="details-table">
+            <tr>
+                <th>Code</th>
+                <td><strong>@Model.Code</strong></td>
+            </tr>
+            <tr>
+                <th>Nom</th>
+                <td>@Model.Nom</td>
+            </tr>
+            <tr>
+                <th>Ville</th>
+                <td>@Model.Ville</td>
+            </tr>
+        </table>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-cancel">Annuler</a>
+                <button type="submit" class="btn-delete">Supprimer</button>
+            </div>
+        </form>
+    </div>
+</div>

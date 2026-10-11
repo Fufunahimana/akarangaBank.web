@@ -1,0 +1,109 @@
+@model AkarangaBank.Web.Controllers.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Tableau de bord";
+}
+
+<div class="admin-dashboard">
+    <header class="dashboard-heading">
+        <div>
+            <p class="dashboard-eyebrow" data-i18n="dashboard.eyebrow">VUE D’ENSEMBLE</p>
+            <h1 data-i18n="dashboard.title">Tableau de bord</h1>
+            <p class="dashboard-subtitle" data-i18n="dashboard.subtitle">Suivez l’activité et les indicateurs de votre banque.</p>
+        </div>
+        <a class="dashboard-primary-link" asp-controller="VirementsInterAgences" asp-action="Index">
+            <span data-i18n="dashboard.approvals">Voir les virements à approuver</span>
+            <span class="dashboard-link-arrow" aria-hidden="true">↗</span>
+        </a>
+    </header>
+
+    <section class="dashboard-metrics" aria-label="Indicateurs de la banque">
+        <article class="metric-card metric-clients">
+            <div class="metric-topline"><span class="metric-icon" aria-hidden="true">♙</span><span class="metric-label" data-i18n="dashboard.clients">Total des clients</span></div>
+            <strong class="metric-value">@Model.NombreClients.ToString("N0")</strong>
+            <span class="metric-caption" data-i18n="dashboard.registeredClients">Clients enregistrés</span>
+        </article>
+        <article class="metric-card metric-agencies">
+            <div class="metric-topline"><span class="metric-icon" aria-hidden="true">▦</span><span class="metric-label" data-i18n="dashboard.agencies">Total des agences</span></div>
+            <strong class="metric-value">@Model.NombreAgences.ToString("N0")</strong>
+            <span class="metric-caption" data-i18n="dashboard.network">Agences dans le réseau</span>
+        </article>
+        <article class="metric-card metric-deposits">
+            <div class="metric-topline"><span class="metric-icon" aria-hidden="true">◈</span><span class="metric-label" data-i18n="dashboard.deposits">Dépôts des clients</span></div>
+            @if (Model.DepotsParDevise.Count == 0)
+            {
+                <strong class="metric-value">0 BIF</strong>
+            }
+            else
+            {
+                <div class="metric-currency-list">
+                    @foreach (var depot in Model.DepotsParDevise)
+                    {
+                        <strong class="metric-value metric-currency-value">@depot.Montant.ToString("N2") <span>@depot.Devise</span></strong>
+                    }
+                </div>
+            }
+            <span class="metric-caption" data-i18n="dashboard.customerBalances">Soldes des comptes clients, par devise</span>
+        </article>
+    </section>
+
+    <section class="dashboard-content-grid">
+        <article class="dashboard-panel dashboard-pending-panel">
+            <div class="panel-heading">
+                <div>
+                    <p class="panel-kicker" data-i18n="dashboard.toReview">À TRAITER</p>
+                    <h2 data-i18n="dashboard.pendingTitle">Virements interagences</h2>
+                </div>
+                <span class="pending-count">@Model.VirementsEnAttente</span>
+            </div>
+            <p class="panel-description" data-i18n="dashboard.pendingDescription">Chaque transfert reste en attente jusqu’à sa validation par un administrateur.</p>
+
+            @if (Model.DerniersVirementsEnAttente.Count == 0)
+            {
+                <div class="dashboard-empty-state">
+                    <span class="empty-state-icon" aria-hidden="true">✓</span>
+                    <strong data-i18n="dashboard.noPending">Aucun virement à approuver</strong>
+                    <span data-i18n="dashboard.allCaughtUp">La file de validation est à jour.</span>
+                </div>
+            }
+            else
+            {
+                <div class="pending-transfer-list">
+                    @foreach (var transfert in Model.DerniersVirementsEnAttente)
+                    {
+                        <div class="pending-transfer-row">
+                            <span class="transfer-route-mark" aria-hidden="true">↗</span>
+                            <div class="transfer-route">
+                                <strong>@transfert.AgenceSource.Code <span aria-hidden="true">→</span> @transfert.AgenceDestination.Code</strong>
+                                <span>@transfert.Reference</span>
+                            </div>
+                            <div class="transfer-amount">
+                                <strong>@transfert.Montant.ToString("N2")</strong>
+                                <span>@transfert.Devise</span>
+                            </div>
+                            <span class="transfer-pending-badge" data-i18n="dashboard.pending">En attente</span>
+                        </div>
+                    }
+                </div>
+                <a class="panel-footer-link" asp-controller="VirementsInterAgences" asp-action="Index">
+                    <span data-i18n="dashboard.seeAll">Ouvrir la file de validation</span><span aria-hidden="true">→</span>
+                </a>
+            }
+        </article>
+
+        <aside class="dashboard-side-panels">
+            <article class="dashboard-panel quick-actions-panel">
+                <div class="panel-heading"><div><p class="panel-kicker" data-i18n="dashboard.shortcuts">RACCOURCIS</p><h2 data-i18n="dashboard.quickActions">Actions rapides</h2></div></div>
+                <a class="quick-action-link" asp-controller="Clients" asp-action="Index"><span class="quick-action-icon">♙</span><span data-i18n="dashboard.manageClients">Gérer les clients</span><span aria-hidden="true">→</span></a>
+                <a class="quick-action-link" asp-controller="Agences" asp-action="Index"><span class="quick-action-icon">▦</span><span data-i18n="dashboard.manageAgencies">Gérer les agences</span><span aria-hidden="true">→</span></a>
+                <a class="quick-action-link" asp-controller="AdminUtilisateurs" asp-action="Index"><span class="quick-action-icon">♧</span><span data-i18n="dashboard.manageUsers">Gérer les utilisateurs</span><span aria-hidden="true">→</span></a>
+            </article>
+            <article class="approval-note-card">
+                <span class="approval-note-icon" aria-hidden="true">⛨</span>
+                <div>
+                    <strong data-i18n="dashboard.approvalRule">Contrôle des transferts</strong>
+                    <p data-i18n="dashboard.approvalRuleDescription">Aucun virement interagence n’est comptabilisé avant l’approbation d’un administrateur.</p>
+                </div>
+            </article>
+        </aside>
+    </section>
+</div>

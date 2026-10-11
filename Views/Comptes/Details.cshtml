@@ -1,0 +1,127 @@
+@model AkarangaBank.Web.ViewModels.CompteDetailsViewModel
+
+@{
+    var compte = Model.Compte;
+    var client = compte.Client;
+    var statusClass = compte.Statut == "Actif" ? "bank-badge-success" : "bank-badge-warning";
+    ViewData["Title"] = $"Détails du compte {compte.NumeroCompte}";
+}
+
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div>
+            <h1>Détails du compte</h1>
+            <p>@compte.NumeroCompte · @(client is null ? "Client non renseigné" : $"{client.Prenom} {client.Nom}")</p>
+        </div>
+        <nav class="bank-actions" aria-label="Actions sur le compte">
+            <a asp-action="Edit" asp-route-id="@compte.Id" class="bank-btn bank-btn-light">Modifier</a>
+            <a asp-action="Index" class="bank-btn bank-btn-secondary">Retour à la liste</a>
+        </nav>
+    </header>
+
+    <div class="bank-page-body">
+        <div class="bank-summary">
+            <div class="bank-summary-card">
+                <span>Solde disponible</span>
+                <strong>@compte.Solde.ToString("N2") @compte.Devise</strong>
+            </div>
+            <div class="bank-summary-card">
+                <span>Type de compte</span>
+                <strong>@(compte.TypeCompte?.Libelle ?? "Non renseigné")</strong>
+            </div>
+            <div class="bank-summary-card">
+                <span>Statut</span>
+                <strong><span class="bank-badge @statusClass">@compte.Statut</span></strong>
+            </div>
+        </div>
+
+        <h2 class="bank-section-title">Informations du compte</h2>
+        <dl class="bank-details">
+            <dt>Numéro de compte</dt>
+            <dd>@compte.NumeroCompte</dd>
+
+            <dt>Client</dt>
+            <dd>
+                @if (client is not null)
+                {
+                    <a asp-controller="Clients" asp-action="Details" asp-route-id="@client.Id">
+                        @client.NumeroClient · @client.Prenom @client.Nom
+                    </a>
+                }
+                else
+                {
+                    <span class="bank-muted">Client non renseigné</span>
+                }
+            </dd>
+
+            <dt>Type</dt>
+            <dd>@(compte.TypeCompte?.Libelle ?? "Non renseigné")</dd>
+
+            <dt>Devise</dt>
+            <dd>@compte.Devise</dd>
+
+            <dt>Agence</dt>
+            <dd>@(compte.Agence is null ? "Non renseignée" : $"{compte.Agence.Code} — {compte.Agence.Nom}")</dd>
+
+            <dt>Date d’ouverture</dt>
+            <dd>@BankTime.ToLocal(compte.DateOuverture).ToString("dd/MM/yyyy")</dd>
+
+            <dt>Statut</dt>
+            <dd><span class="bank-badge @statusClass">@compte.Statut</span></dd>
+        </dl>
+
+        <h2 class="bank-section-title">Écritures récentes</h2>
+        @if (Model.Ecritures.Any())
+        {
+            <div class="bank-table-wrap">
+                <table class="bank-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Référence</th>
+                            <th>Libellé</th>
+                            <th>Débit</th>
+                            <th>Crédit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ecriture in Model.Ecritures)
+                        {
+                            <tr>
+                                <td>@BankTime.ToLocal(ecriture.DateEcriture).ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@(ecriture.Operation?.Reference ?? "—")</td>
+                                <td>@(ecriture.Libelle ?? ecriture.Operation?.TypeOperation ?? "—")</td>
+                                <td>
+                                    @if (ecriture.Sens == "Debit")
+                                    {
+                                        @ecriture.Montant.ToString("N2") @ecriture.Devise
+                                    }
+                                    else
+                                    {
+                                        <span class="bank-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (ecriture.Sens == "Credit")
+                                    {
+                                        @ecriture.Montant.ToString("N2") @ecriture.Devise
+                                    }
+                                    else
+                                    {
+                                        <span class="bank-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="bank-empty">Aucune écriture comptable enregistrée pour ce compte.</div>
+        }
+    </div>
+</section>

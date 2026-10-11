@@ -1,0 +1,343 @@
+<style>
+    .identity-auth-page {
+        width: min(100% - 36px, 960px);
+        margin: clamp(28px, 6vh, 64px) auto 56px;
+        color: #212529;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .identity-auth-heading {
+        margin: 0 0 24px;
+        text-align: center;
+    }
+
+    .identity-auth-eyebrow {
+        display: inline-block;
+        margin-bottom: 8px;
+        color: #0b5ed7;
+        font-size: .78rem;
+        font-weight: 700;
+        letter-spacing: .09em;
+        text-transform: uppercase;
+    }
+
+    .identity-auth-heading h1 {
+        margin: 0;
+        color: #172b4d;
+        font-size: clamp(2rem, 4vw, 2.55rem);
+        font-weight: 750;
+        letter-spacing: -.035em;
+    }
+
+    .identity-auth-heading p {
+        margin: 8px 0 0;
+        color: #6c757d;
+        font-size: 1.02rem;
+    }
+
+    .identity-auth-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(270px, .85fr);
+        gap: 22px;
+        align-items: stretch;
+    }
+
+    .identity-auth-card,
+    .identity-auth-sidecard {
+        min-width: 0;
+        border: 1px solid #e1e7ef;
+        border-radius: 14px;
+        box-shadow: 0 12px 34px rgba(23, 43, 77, .08);
+    }
+
+    .identity-auth-card {
+        padding: clamp(24px, 4vw, 38px);
+        background: #fff;
+    }
+
+    .identity-auth-card-heading {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 26px;
+    }
+
+    .identity-auth-icon {
+        display: grid;
+        flex: 0 0 48px;
+        width: 48px;
+        height: 48px;
+        place-items: center;
+        border-radius: 13px;
+        background: linear-gradient(145deg, #0d6efd, #0b5ed7);
+        box-shadow: 0 6px 14px rgba(13, 110, 253, .2);
+        color: #fff;
+        font-size: .9rem;
+        font-weight: 800;
+        letter-spacing: .04em;
+    }
+
+    .identity-auth-card-heading h2,
+    .identity-auth-sidecard h2 {
+        margin: 0;
+        color: #172b4d;
+        font-size: 1.18rem;
+        font-weight: 700;
+    }
+
+    .identity-auth-card-heading p,
+    .identity-auth-sidecard > p {
+        margin: 5px 0 0;
+        color: #6c757d;
+        font-size: .92rem;
+        line-height: 1.55;
+    }
+
+    .identity-auth-form {
+        display: grid;
+        gap: 17px;
+    }
+
+    .identity-auth-form .form-floating > .form-control {
+        min-height: 54px;
+        border: 1px solid #ced7e2;
+        border-radius: 8px;
+        color: #212529;
+        box-shadow: none;
+    }
+
+    .identity-auth-form .form-floating > .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, .14);
+    }
+
+    .identity-auth-form .form-floating > label {
+        color: #6c757d;
+    }
+
+    .identity-auth-form .text-danger {
+        display: block;
+        margin-top: 5px;
+        font-size: .86rem;
+    }
+
+    .identity-auth-validation {
+        margin: 0;
+        color: #842029;
+    }
+
+    .identity-auth-validation ul {
+        margin: 0;
+        padding: 12px 16px 12px 34px;
+        border: 1px solid #f1aeb5;
+        border-radius: 8px;
+        background: #f8d7da;
+    }
+
+    .identity-auth-options {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: -2px;
+    }
+
+    .identity-auth-options .form-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        color: #495057;
+        cursor: pointer;
+    }
+
+    .identity-auth-options .form-check-input {
+        float: none;
+        margin: 0;
+        cursor: pointer;
+    }
+
+    .identity-auth-page a {
+        color: #0b5ed7;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .identity-auth-page a:hover {
+        color: #084298;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .identity-auth-submit {
+        display: flex;
+        width: 100%;
+        min-height: 50px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+        border: 1px solid #0d6efd;
+        border-radius: 8px;
+        background: linear-gradient(110deg, #0d6efd, #0b5ed7);
+        box-shadow: 0 6px 14px rgba(13, 110, 253, .18);
+        color: #fff;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    .identity-auth-submit:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(110deg, #0b5ed7, #084298);
+        box-shadow: 0 9px 18px rgba(13, 110, 253, .24);
+    }
+
+    .identity-auth-submit:focus-visible,
+    .identity-auth-providers button:focus-visible,
+    .identity-auth-page a:focus-visible {
+        outline: 3px solid rgba(13, 110, 253, .3);
+        outline-offset: 3px;
+    }
+
+    .identity-auth-links {
+        display: grid;
+        gap: 9px;
+        padding-top: 16px;
+        border-top: 1px solid #edf0f4;
+        color: #6c757d;
+        font-size: .9rem;
+    }
+
+    .identity-auth-links p {
+        margin: 0;
+    }
+
+    .identity-auth-sidecard {
+        display: flex;
+        flex-direction: column;
+        padding: clamp(24px, 3.5vw, 32px);
+        background: linear-gradient(155deg, #f7faff, #eef4fc);
+    }
+
+    .identity-auth-sidecard-mark {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        margin-bottom: 20px;
+        place-items: center;
+        border: 1px solid #cfe0ff;
+        border-radius: 12px;
+        background: #eaf2ff;
+        color: #0d6efd;
+        font-size: .7rem;
+    }
+
+    .identity-auth-provider-empty {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 24px;
+        padding: 13px;
+        border: 1px solid #d9e5f5;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, .72);
+        color: #526174;
+        font-size: .88rem;
+        line-height: 1.5;
+    }
+
+    .identity-auth-empty-dot {
+        flex: 0 0 8px;
+        width: 8px;
+        height: 8px;
+        margin-top: 5px;
+        border-radius: 50%;
+        background: #6c757d;
+    }
+
+    .identity-auth-providers {
+        display: grid;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .identity-auth-providers button {
+        display: flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 13px;
+        border: 1px solid #cfe0ff;
+        border-radius: 8px;
+        background: #fff;
+        color: #174a8b;
+        font: inherit;
+        font-weight: 650;
+        cursor: pointer;
+        transition: border-color .15s ease, background-color .15s ease, transform .15s ease;
+    }
+
+    .identity-auth-providers button:hover {
+        transform: translateY(-1px);
+        border-color: #0d6efd;
+        background: #f7faff;
+    }
+
+    .identity-auth-security-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        margin-top: auto;
+        padding-top: 26px;
+        color: #526174;
+        font-size: .84rem;
+        line-height: 1.5;
+    }
+
+    .identity-auth-security-note span:first-child {
+        display: grid;
+        flex: 0 0 20px;
+        width: 20px;
+        height: 20px;
+        place-items: center;
+        border-radius: 50%;
+        background: #d1e7dd;
+        color: #0f5132;
+        font-size: .76rem;
+        font-weight: 800;
+    }
+
+    @@media (max-width: 720px) {
+        .identity-auth-page {
+            width: min(100% - 28px, 520px);
+            margin-top: 28px;
+        }
+
+        .identity-auth-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .identity-auth-sidecard {
+            min-height: 230px;
+        }
+    }
+
+    @@media (max-width: 420px) {
+        .identity-auth-card-heading {
+            align-items: flex-start;
+        }
+
+        .identity-auth-card-heading h2,
+        .identity-auth-sidecard h2 {
+            font-size: 1.08rem;
+        }
+
+        .identity-auth-options {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>

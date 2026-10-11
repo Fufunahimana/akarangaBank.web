@@ -1,0 +1,20 @@
+@{
+    ViewData["Title"] = "Contrôle d'équilibre";
+    var ok = ViewBag.Equilibre is bool equilibre && equilibre;
+}
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Contrôle d'équilibre comptable</h1><p>Vérification des écritures débit et crédit</p></div></header>
+    <div class="bank-page-body">
+        @if (ok)
+        {
+            <div class="bank-flash"><strong>La comptabilité est équilibrée.</strong> Les écritures respectent le schéma attendu pour chaque opération.</div>
+        }
+        else
+        {
+            <div class="bank-flash" style="background:#f8d7da;color:#842029;border-color:#f5c2c7"><strong>Déséquilibre détecté.</strong> Certaines opérations ont des écritures qui ne s'équilibrent pas.</div>
+        }
+        <a asp-action="Journal" class="bank-btn bank-btn-secondary">Retour au journal</a>
+    </div>
+</section>

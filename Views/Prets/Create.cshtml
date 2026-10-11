@@ -1,0 +1,20 @@
+@model AkarangaBank.Web.ViewModels.PretDemandeViewModel
+@{ ViewData["Title"] = "Nouvelle demande de prêt"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Nouvelle demande de prêt</h1><p>Le taux moyen du produit et la mensualité sont calculés automatiquement.</p></div></header>
+    <div class="bank-page-body">
+        <form asp-action="Create" method="post" class="bank-form">
+            <div asp-validation-summary="ModelOnly" class="bank-validation" role="alert"></div>
+            <div class="bank-form-group"><label asp-for="ClientId" class="bank-label">Client</label><select asp-for="ClientId" asp-items="ViewBag.Clients" class="bank-control"><option value="">Sélectionner un client</option></select><span asp-validation-for="ClientId" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="CompteDebitId" class="bank-label">Compte de remboursement</label><select asp-for="CompteDebitId" asp-items="ViewBag.Comptes" class="bank-control"><option value="">Sélectionner un compte actif</option></select><span asp-validation-for="CompteDebitId" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="TypePretId" class="bank-label">Type de prêt</label><select asp-for="TypePretId" asp-items="ViewBag.TypesPret" class="bank-control"><option value="">Sélectionner un type</option></select><span asp-validation-for="TypePretId" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="MontantPrincipal" class="bank-label">Montant principal (BIF)</label><input asp-for="MontantPrincipal" class="bank-control" min="0.01" step="0.01" /><span asp-validation-for="MontantPrincipal" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="DureeMois" class="bank-label">Durée (mois)</label><input asp-for="DureeMois" class="bank-control" min="1" step="1" /><span asp-validation-for="DureeMois" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="Commentaire" class="bank-label">Commentaire (facultatif)</label><textarea asp-for="Commentaire" class="bank-control" rows="3"></textarea><span asp-validation-for="Commentaire" class="text-danger"></span></div>
+            <div class="bank-actions"><button type="submit" class="bank-btn bank-btn-primary">Enregistrer la demande</button><a asp-action="Index" class="bank-btn bank-btn-secondary">Annuler</a></div>
+        </form>
+    </div>
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

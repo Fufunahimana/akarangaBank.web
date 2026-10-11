@@ -1,0 +1,19 @@
+@model AkarangaBank.Web.ViewModels.CarteEmissionViewModel
+@{ ViewData["Title"] = "Émettre une carte"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Émettre une carte bancaire</h1><p>La carte sera active pour un compte actif et expirera dans trois ans.</p></div></header>
+    <div class="bank-page-body">
+        <form asp-action="Create" method="post" class="bank-form">
+            <div asp-validation-summary="ModelOnly" class="bank-validation" role="alert"></div>
+            <div class="bank-form-group"><label asp-for="CompteId" class="bank-label">Compte</label><select asp-for="CompteId" asp-items="ViewBag.Comptes" class="bank-control"><option value="">Sélectionner un compte actif</option></select><span asp-validation-for="CompteId" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="TypeCarte" class="bank-label">Type de carte</label><select asp-for="TypeCarte" asp-items="ViewBag.TypesCarte" class="bank-control"></select><span asp-validation-for="TypeCarte" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="PlafondRetraitJournalier" class="bank-label">Plafond quotidien de retrait (BIF)</label><input asp-for="PlafondRetraitJournalier" class="bank-control" min="1" step="0.01" /><span asp-validation-for="PlafondRetraitJournalier" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="PlafondPaiementJournalier" class="bank-label">Plafond quotidien de paiement (BIF)</label><input asp-for="PlafondPaiementJournalier" class="bank-control" min="1" step="0.01" /><span asp-validation-for="PlafondPaiementJournalier" class="text-danger"></span></div>
+            <div class="bank-form-group"><label asp-for="PlafondPaiementEnLigneJournalier" class="bank-label">Plafond quotidien de paiement en ligne (BIF)</label><input asp-for="PlafondPaiementEnLigneJournalier" class="bank-control" min="1" step="0.01" /><span asp-validation-for="PlafondPaiementEnLigneJournalier" class="text-danger"></span></div>
+            <div class="bank-actions"><button type="submit" class="bank-btn bank-btn-primary">Émettre la carte</button><a asp-action="Index" class="bank-btn bank-btn-secondary">Annuler</a></div>
+        </form>
+    </div>
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

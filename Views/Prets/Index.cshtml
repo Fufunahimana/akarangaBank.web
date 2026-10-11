@@ -1,0 +1,44 @@
+@model IReadOnlyList<AkarangaBank.Web.Models.Pret>
+@{ ViewData["Title"] = "Prêts"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div><h1>Prêts</h1><p>Demandes, échéanciers et remboursements</p></div>
+        <div class="bank-actions">
+            @if (User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier"))
+            {
+                <a asp-action="Create" class="bank-btn bank-btn-light">Nouvelle demande</a>
+            }
+            @if (User.IsInRole("admin"))
+            {
+                <form asp-action="MettreAJourRetards" method="post"><button class="bank-btn bank-btn-light" type="submit">Actualiser les retards</button></form>
+            }
+        </div>
+    </header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
+        @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead><tr><th>Référence</th><th>Client</th><th>Type</th><th>Montant</th><th>Mensualité</th><th>Durée</th><th>Statut</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var pret in Model)
+                {
+                    <tr>
+                        <td><strong>@pret.Reference</strong></td>
+                        <td>@pret.Client.Nom @pret.Client.Prenom</td>
+                        <td>@pret.TypePret.Libelle</td>
+                        <td>@pret.MontantPrincipal.ToString("N2") BIF</td>
+                        <td>@pret.Mensualite.ToString("N2") BIF</td>
+                        <td>@pret.DureeMois mois</td>
+                        <td><span class="bank-badge @(pret.Statut == "EnCours" ? "bank-badge-success" : pret.Statut is "Rejete" or "Impaye" ? "bank-badge-danger" : "bank-badge-warning")">@pret.Statut</span></td>
+                        <td><a asp-action="Details" asp-route-id="@pret.Id" class="bank-btn bank-btn-secondary">Détails</a></td>
+                    </tr>
+                }
+                @if (Model.Count == 0) { <tr><td colspan="8" class="bank-empty">Aucune demande de prêt enregistrée.</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

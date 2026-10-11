@@ -1,0 +1,192 @@
+@model IEnumerable<AkarangaBank.Web.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "Administration des utilisateurs";
+}
+
+<style>
+    .bank-form-container {
+        max-width: 1100px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .bank-form-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .bank-form-header h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .bank-form-body {
+        padding: 30px;
+    }
+    .btn-submit {
+        background-color: #ffffff;
+        color: #0d6efd;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.2s, color 0.2s;
+    }
+    .btn-submit:hover {
+        background-color: #f8f9fa;
+        color: #0b5ed7;
+    }
+    .table-custom {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    .table-custom th, .table-custom td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 0.95rem;
+    }
+    .table-custom th {
+        font-weight: 600;
+        color: #333;
+        background-color: #f8f9fa;
+    }
+    .badge-status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .badge-success {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+    .badge-danger {
+        background-color: #f8d7da;
+        color: #842029;
+    }
+    .badge-secondary {
+        background-color: #e2e3e5;
+        color: #41464b;
+    }
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border: 1px solid;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+    }
+    .btn-outline-danger {
+        color: #dc3545;
+        border-color: #dc3545;
+        background: transparent;
+    }
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    .btn-outline-success {
+        color: #198754;
+        border-color: #198754;
+        background: transparent;
+    }
+    .btn-outline-success:hover {
+        background-color: #198754;
+        color: white;
+    }
+</style>
+
+<div class="bank-form-container">
+    <div class="bank-form-header">
+        <h2>Utilisateurs</h2>
+        <a asp-action="Create" class="btn-submit">+ Nouvel utilisateur</a>
+    </div>
+
+    <div class="bank-form-body">
+        @if (TempData["Success"] is string msg)
+        {
+            <div style="background-color: #d1e7dd; color: #0f5132; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px;">
+                @msg
+            </div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div style="background-color: #f8d7da; color: #842029; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px;">
+                @error
+            </div>
+        }
+
+        <div style="overflow-x: auto;">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Rôle</th>
+                        <th>Agence</th>
+                        <th>2FA</th>
+                        <th>Actif</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var u in Model)
+                        {
+                            <tr>
+                                <td>@u.NomComplet</td>
+                                <td>@u.Email</td>
+                                <td>@u.Role</td>
+                                <td>@(u.Agence?.Code ?? "N/A")</td>
+                                <td>
+                                    @if (u.TwoFactorEnabled)
+                                    {
+                                        <span class="badge-status badge-success">Activée</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-status badge-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge-status @(u.EstActif ? "badge-success" : "badge-danger")">
+                                        @(u.EstActif ? "Oui" : "Non")
+                                    </span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <form asp-action="ToggleActif" asp-route-id="@u.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="btn-action @(u.EstActif ? "btn-outline-danger" : "btn-outline-success")">
+                                            @(u.EstActif ? "Désactiver" : "Activer")
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #6c757d; padding: 30px;">
+                                Aucun utilisateur trouvé.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

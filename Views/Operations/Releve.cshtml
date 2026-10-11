@@ -1,0 +1,39 @@
+@model AkarangaBank.Web.ViewModels.ReleveViewModel
+@{ ViewData["Title"] = "Relevé de compte"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div><h1>Relevé de compte</h1><p>@Model.Compte.NumeroCompte — @Model.Compte.Client.Nom @Model.Compte.Client.Prenom</p></div>
+        <a asp-action="Journal" class="bank-btn bank-btn-light">Retour au journal</a>
+    </header>
+    <div class="bank-page-body">
+        <div class="bank-summary">
+            <div class="bank-summary-card"><span>Solde initial estimé</span><strong>@Model.SoldeInitial.ToString("N2") @Model.Compte.Devise</strong></div>
+            <div class="bank-summary-card"><span>Solde actuel</span><strong>@Model.SoldeFinal.ToString("N2") @Model.Compte.Devise</strong></div>
+        </div>
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead><tr><th>Date</th><th>Libellé</th><th style="text-align:right">Débit</th><th style="text-align:right">Crédit</th></tr></thead>
+                <tbody>
+                @if (Model.Ecritures.Any())
+                {
+                    @foreach (var e in Model.Ecritures)
+                    {
+                        <tr>
+                            <td>@BankTime.ToLocal(e.DateEcriture).ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@e.Libelle</td>
+                            <td style="text-align:right;color:#dc3545">@(e.Sens == "Debit" ? e.Montant.ToString("N2") : "—")</td>
+                            <td style="text-align:right;color:#198754">@(e.Sens == "Credit" ? e.Montant.ToString("N2") : "—")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="4" class="bank-empty">Aucune écriture trouvée.</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

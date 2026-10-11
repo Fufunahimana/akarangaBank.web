@@ -1,0 +1,154 @@
+@model AkarangaBank.Web.ViewModels.ClientListViewModel
+
+@{
+    ViewData["Title"] = "Liste des clients";
+}
+
+<style>
+    .bank-table-container {
+        max-width: 950px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .bank-table-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .bank-table-header h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .bank-table-header p {
+        margin: 5px 0 0;
+        opacity: 0.85;
+        font-size: 0.95rem;
+    }
+    .btn-add-client {
+        background-color: #ffffff;
+        color: #0d6efd;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.2s, color 0.2s;
+    }
+    .btn-add-client:hover {
+        background-color: #f8f9fa;
+        color: #0b5ed7;
+    }
+    .bank-table-body {
+        padding: 25px;
+    }
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+    .custom-table th {
+        background-color: #f8f9fa;
+        color: #333;
+        padding: 14px 16px;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+        font-size: 0.95rem;
+    }
+    .custom-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #dee2e6;
+        color: #495057;
+        font-size: 0.95rem;
+    }
+    .custom-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .badge-status {
+        background-color: #d1e7dd;
+        color: #0f5132;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+    .action-link {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: 600;
+        margin-right: 10px;
+    }
+    .action-link:hover {
+        text-decoration: underline;
+        color: #0b5ed7;
+    }
+    .alert-success-custom {
+        max-width: 950px;
+        margin: 20px auto 0 auto;
+        background-color: #d1e7dd;
+        color: #0f5132;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #badbcc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+</style>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert-success-custom">
+        <strong>Succès !</strong> @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="bank-table-container">
+    <div class="bank-table-header">
+        <div>
+            <h2>AkarangaBank</h2>
+            <p>Liste des clients enregistrés</p>
+        </div>
+        <a href="/Clients/Create" class="btn-add-item">+ Nouveau client</a>
+    </div>
+
+    <div class="bank-table-body">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>N°</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Téléphone</th>
+                    <th>Email</th>
+                    <th>Statut</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Clients)
+                {
+                    <tr>
+                        <td><strong>@item.Id</strong></td>
+                        <td>@item.Nom</td>
+                        <td>@item.Prenom</td>
+                        <td>@item.Telephone</td>
+                        <td>@item.Email</td>
+                        <td>
+                            <span class="badge-status">@item.Statut</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="action-link">Détails</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

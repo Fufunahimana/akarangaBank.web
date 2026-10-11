@@ -1,0 +1,37 @@
+@model AkarangaBank.Web.Models.AlerteAML
+@{ ViewData["Title"] = "Détail de l'alerte"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Détail de l'alerte</h1><p>@Model.TypeAlerte — @BankTime.ToLocal(Model.DateAlerte).ToString("dd/MM/yyyy HH:mm")</p></div></header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string msg) { <div class="bank-flash" role="status">@msg</div> }
+        <dl class="bank-details">
+            <dt>Client</dt><dd>@Model.Client.Nom @Model.Client.Prenom (@Model.Client.NumeroClient)</dd>
+            <dt>Niveau</dt><dd>@Model.Niveau</dd>
+            <dt>Statut</dt><dd>@Model.Statut</dd>
+            <dt>Opération</dt><dd>@(Model.Operation?.Reference ?? "Aucune")</dd>
+            <dt>Description</dt><dd>@(Model.Description ?? "Aucune description")</dd>
+            <dt>Traitée par</dt><dd>@(Model.TraitePar?.NomComplet ?? "Non traitée")</dd>
+        </dl>
+        @if (Model.Statut is "Ouverte" or "EnCours")
+        {
+            <form asp-action="Traiter" asp-route-id="@Model.Id" method="post" class="bank-form" style="margin-top:24px">
+                <div class="bank-form-group">
+                    <label for="statut" class="bank-label">Action</label>
+                    <select name="statut" id="statut" class="bank-control">
+                        <option value="EnCours">Prendre en charge</option>
+                        <option value="Traitee">Marquer comme traitée</option>
+                        <option value="Classee">Classer sans suite</option>
+                    </select>
+                </div>
+                <div class="bank-form-group">
+                    <label for="commentaire" class="bank-label">Commentaire</label>
+                    <textarea name="commentaire" id="commentaire" class="bank-control" rows="3" maxlength="500"></textarea>
+                </div>
+                <div class="bank-actions"><button type="submit" class="bank-btn bank-btn-primary">Enregistrer le traitement</button></div>
+            </form>
+        }
+        <div class="bank-actions"><a asp-action="Alertes" class="bank-btn bank-btn-secondary">Retour aux alertes</a></div>
+    </div>
+</section>

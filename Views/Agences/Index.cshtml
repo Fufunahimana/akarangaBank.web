@@ -1,0 +1,254 @@
+@model AkarangaBank.Web.ViewModels.AgenceListViewModel
+
+@{
+    ViewData["Title"] = "Liste des Agences";
+}
+
+<style>
+    .bank-table-container {
+        max-width: 950px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .bank-table-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .bank-table-header h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .bank-table-header p {
+        margin: 5px 0 0;
+        opacity: 0.85;
+        font-size: 0.95rem;
+    }
+    .btn-add-item {
+        background-color: #ffffff;
+        color: #0d6efd;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.2s, color 0.2s;
+    }
+    .btn-add-item:hover {
+        background-color: #f8f9fa;
+        color: #0b5ed7;
+    }
+    .bank-table-body {
+        padding: 25px;
+    }
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+    .custom-table th {
+        background-color: #f8f9fa;
+        color: #333;
+        padding: 14px 16px;
+        font-weight: 600;
+        border-bottom: 2px solid #dee2e6;
+        font-size: 0.95rem;
+    }
+    .custom-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #dee2e6;
+        color: #495057;
+        font-size: 0.95rem;
+        vertical-align: middle;
+    }
+    .custom-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .action-link {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: 600;
+        margin-right: 8px;
+    }
+    .action-link:hover {
+        text-decoration: underline;
+        color: #0b5ed7;
+    }
+    .action-link-danger {
+        color: #dc3545;
+    }
+    .action-link-danger:hover {
+        color: #b02a37;
+    }
+    .alert-success-custom {
+        max-width: 950px;
+        margin: 20px auto 0 auto;
+        background-color: #d1e7dd;
+        color: #0f5132;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #badbcc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .alert-danger-custom {
+        max-width: 950px;
+        margin: 20px auto 0 auto;
+        background-color: #f8d7da;
+        color: #842029;
+        padding: 15px;
+        border-radius: 6px;
+        border: 1px solid #f5c2c7;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .search-filter-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .search-input {
+        flex: 1;
+        padding: 10px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
+    .btn-search {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .btn-search:hover {
+        background-color: #5c636a;
+    }
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 25px;
+    }
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        gap: 5px;
+    }
+    .page-item .page-link {
+        padding: 8px 12px;
+        border: 1px solid #dee2e6;
+        color: #0d6efd;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+    .page-item.active .page-link {
+        background-color: #0d6efd;
+        color: white;
+        border-color: #0d6efd;
+    }
+</style>
+
+@{
+    var successMsg = TempData["Success"] as string ?? TempData["SuccessMessage"] as string;
+}
+
+@* Messages flash *@
+@if (!string.IsNullOrEmpty(successMsg))
+{
+    <div class="alert-success-custom">
+        <strong>Succès !</strong> @successMsg
+    </div>
+}
+
+@if (TempData["Error"] is string err)
+{
+    <div class="alert-danger-custom">
+        <strong>Erreur !</strong> @err
+    </div>
+}
+
+<div class="bank-table-container">
+    <div class="bank-table-header">
+        <div>
+            <h2>AkarangaBank</h2>
+            <p>Liste des Agences</p>
+        </div>
+        <a href="/Agences/Create" class="btn-add-item">+ Nouvelle agence</a>
+    </div>
+
+    <div class="bank-table-body">
+        @* Barre de recherche *@
+        <form method="get" class="search-filter-bar">
+            <input type="text" name="recherche" value="@Model.Recherche" 
+                   class="search-input" 
+                   placeholder="Rechercher par code, nom ou ville..." />
+            <button type="submit" class="btn-search">Rechercher</button>
+        </form>
+
+        <p class="text-muted" style="margin-bottom: 15px; font-size: 0.9rem;">@Model.Total agence(s) trouvée(s).</p>
+
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Nom</th>
+                    <th>Ville</th>
+                    <th>Statut</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var agence in Model.Agences)
+                {
+                    <tr>
+                        <td><strong>@agence.Code</strong></td>
+                        <td>@agence.Nom</td>
+                        <td>@agence.Ville</td>
+                        <td>
+                            @if (agence.EstSiege)
+                            {
+                                <span style="background-color: #0d6efd; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Siège</span>
+                            }
+                            else
+                            {
+                                <span style="background-color: #6c757d; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Agence</span>
+                            }
+                        </td>
+                        <td style="text-align: right;">
+                            <a asp-action="Details" asp-route-id="@agence.Id" class="action-link">Détails</a>
+                            <a asp-action="Edit" asp-route-id="@agence.Id" class="action-link" style="color: #ffc107;">Modifier</a>
+                            <a asp-action="Delete" asp-route-id="@agence.Id" class="action-link action-link-danger">Supprimer</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @* Pagination *@
+        @if (Model.TotalPages > 1)
+        {
+            <div class="pagination-container">
+                <ul class="pagination">
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.Page ? "active" : "")">
+                            <a class="page-link" 
+                               asp-action="Index" 
+                               asp-route-page="@i" 
+                               asp-route-recherche="@Model.Recherche">@i</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+</div>

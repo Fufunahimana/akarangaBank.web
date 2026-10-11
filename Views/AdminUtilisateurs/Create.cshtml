@@ -1,0 +1,154 @@
+@model AkarangaBank.Web.ViewModels.UtilisateurCreateViewModel
+
+@{
+    ViewData["Title"] = "Nouvel utilisateur";
+}
+
+<style>
+    .bank-form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .bank-form-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 25px;
+    }
+    .bank-form-header h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .bank-form-header p {
+        margin: 5px 0 0;
+        opacity: 0.85;
+        font-size: 0.95rem;
+    }
+    .bank-form-body {
+        padding: 30px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    .form-control-custom {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control-custom:focus {
+        border-color: #0d6efd;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    .text-danger {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        display: block;
+    }
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+    }
+    .btn-submit {
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-submit:hover {
+        background-color: #0b5ed7;
+    }
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.2s;
+    }
+    .btn-cancel:hover {
+        background-color: #5c636a;
+        color: white;
+    }
+</style>
+
+<div class="bank-form-container">
+    <div class="bank-form-header">
+        <h2>AkarangaBank</h2>
+        <p>Créer un nouvel utilisateur</p>
+    </div>
+
+    <div class="bank-form-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 20px;"></div>
+
+            <div class="form-group">
+                <label asp-for="NomComplet" class="form-label">Nom complet</label>
+                <input asp-for="NomComplet" class="form-control-custom" autocomplete="name" />
+                <span asp-validation-for="NomComplet" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control-custom" type="email" placeholder="utilisateur@akarangabank.bi" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Mot de passe</label>
+                <input asp-for="Password" class="form-control-custom" type="password" placeholder="Mot de passe provisoire" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Role" class="form-label">Rôle</label>
+                <select asp-for="Role" asp-items="ViewBag.Roles" class="form-control-custom">
+                    <option value="">-- Sélectionner un rôle --</option>
+                </select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AgenceId" class="form-label">Agence de rattachement</label>
+                <select asp-for="AgenceId" class="form-control-custom" asp-items="ViewBag.Agences">
+                    <option value="">-- Sélectionner une agence --</option>
+                </select>
+                <span asp-validation-for="AgenceId" class="text-danger"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Créer</button>
+                <a asp-action="Index" class="btn-cancel">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

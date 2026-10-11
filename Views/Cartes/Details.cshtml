@@ -1,0 +1,63 @@
+@model AkarangaBank.Web.ViewModels.CarteDetailsViewModel
+@{ ViewData["Title"] = "Détails de la carte"; var carte = Model.Carte; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Carte @carte.NumeroCarteMasque</h1><p>@carte.TypeCarte · @carte.Statut · expiration @carte.DateExpiration.ToString("MM/yyyy")</p></div><a asp-action="Index" class="bank-btn bank-btn-light">Retour à la liste</a></header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
+        @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }
+        <dl class="bank-details">
+            <dt>Client</dt><dd>@carte.Client.Nom @carte.Client.Prenom</dd>
+            <dt>Compte</dt><dd>@carte.Compte.NumeroCompte · solde @carte.Compte.Solde.ToString("N2") @carte.Compte.Devise</dd>
+            <dt>Plafond de retrait par jour</dt><dd>@carte.PlafondRetraitJournalier.ToString("N2") BIF</dd>
+            <dt>Plafond de paiement par jour</dt><dd>@carte.PlafondPaiementJournalier.ToString("N2") BIF</dd>
+            <dt>Plafond en ligne par jour</dt><dd>@carte.PlafondPaiementEnLigneJournalier.ToString("N2") BIF</dd>
+            @if (!string.IsNullOrEmpty(carte.MotifBlocage)) { <dt>Motif de blocage</dt><dd>@carte.MotifBlocage</dd> }
+        </dl>
+
+        @if (carte.Statut == "Active" && (User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier") || User.IsInRole("client")))
+        {
+            <h2 class="bank-section-title">Effectuer une transaction carte</h2>
+            <form asp-action="Transaction" method="post" class="bank-filter">
+                <input type="hidden" name="CarteId" value="@carte.Id" />
+                <div class="bank-form-group"><label for="TypeTransaction" class="bank-label">Type de transaction</label><select id="TypeTransaction" name="TypeTransaction" class="bank-control"><option value="Paiement">Paiement</option><option value="Retrait">Retrait</option><option value="PaiementEnLigne">Paiement en ligne</option></select></div>
+                <div class="bank-form-group"><label for="Montant" class="bank-label">Montant (BIF)</label><input id="Montant" name="Montant" type="number" min="0.01" step="0.01" class="bank-control" required /></div>
+                <button type="submit" class="bank-btn bank-btn-primary">Autoriser le paiement</button>
+            </form>
+        }
+
+        @if (User.IsInRole("admin"))
+        {
+            <div class="bank-actions">
+                @if (carte.Statut == "Active")
+                {
+                    <form asp-action="Bloquer" method="post" class="bank-actions">
+                        <input type="hidden" name="CarteId" value="@carte.Id" />
+                        <label for="Motif" class="bank-label">Motif d'opposition</label>
+                        <select id="Motif" name="Motif" class="bank-control"><option>Perte</option><option>Vol</option><option>Fraude</option><option>Autre</option></select>
+                        <button type="submit" class="bank-btn bank-btn-secondary">Bloquer la carte</button>
+                    </form>
+                }
+                @if (carte.Statut != "Expiree")
+                {
+                    <form asp-action="Renouveler" method="post" asp-route-id="@carte.Id"><button class="bank-btn bank-btn-primary" type="submit">Renouveler la carte</button></form>
+                }
+            </div>
+        }
+
+        <h2 class="bank-section-title">Historique des transactions</h2>
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead><tr><th>Date</th><th>Type</th><th>Montant</th><th>Statut</th><th>Motif de refus</th><th>Opération</th></tr></thead>
+                <tbody>
+                @foreach (var transaction in Model.Transactions)
+                {
+                    <tr><td>@BankTime.ToLocal(transaction.DateTransaction).ToString("dd/MM/yyyy HH:mm")</td><td>@transaction.TypeTransaction</td><td>@transaction.Montant.ToString("N2") BIF</td><td>@transaction.Statut</td><td>@transaction.MotifRefus</td><td>@transaction.Operation?.Reference</td></tr>
+                }
+                @if (Model.Transactions.Count == 0) { <tr><td colspan="6" class="bank-empty">Aucune transaction enregistrée pour cette carte.</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,31 @@
+@model IEnumerable<AkarangaBank.Web.Models.DeclarationSoupcon>
+@{ ViewData["Title"] = "Déclarations CNRF"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Déclarations à la CNRF</h1><p>Préparation et suivi des déclarations de soupçon.</p></div></header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
+        @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }
+
+        <h2 class="bank-section-title">Alertes disponibles pour une DOS</h2>
+        <div class="bank-table-wrap"><table class="bank-table"><thead><tr><th>Date</th><th>Client</th><th>Type d'alerte</th><th>Niveau</th><th>Description</th><th></th></tr></thead><tbody>
+        @foreach (var alerte in (IEnumerable<AkarangaBank.Web.Models.AlerteAML>)ViewBag.Alertes)
+        {
+            <tr><td>@BankTime.ToLocal(alerte.DateAlerte).ToString("dd/MM/yyyy HH:mm")</td><td>@alerte.Client.Nom @alerte.Client.Prenom</td><td>@alerte.TypeAlerte</td><td>@alerte.Niveau</td><td>@alerte.Description</td><td><form asp-action="Generer" method="post"><input type="hidden" name="alerteId" value="@alerte.Id" /><button type="submit" class="bank-btn bank-btn-primary">Générer DOS</button></form></td></tr>
+        }
+        @if (((IEnumerable<AkarangaBank.Web.Models.AlerteAML>)ViewBag.Alertes).Count() == 0) { <tr><td colspan="6" class="bank-empty">Aucune alerte disponible pour une nouvelle DOS.</td></tr> }
+        </tbody></table></div>
+
+        <h2 class="bank-section-title">Déclarations générées</h2>
+        <form method="get" class="bank-filter"><div class="bank-form-group"><label class="bank-label" for="statut">Statut</label><select class="bank-control" id="statut" name="statut"><option value="">Tous</option>@foreach (var item in new[] { "Brouillon", "Validee", "Transmise", "Accusee", "Rejetee" }) { <option value="@item" selected="@(ViewBag.Statut as string == item)">@item</option> }</select></div><button type="submit" class="bank-btn bank-btn-primary">Filtrer</button></form>
+        <div class="bank-table-wrap"><table class="bank-table"><thead><tr><th>Date</th><th>Référence</th><th>Client</th><th>Type</th><th>Statut</th><th>Actions</th></tr></thead><tbody>
+        @foreach (var d in Model)
+        {
+            <tr><td>@BankTime.ToLocal(d.DateCreation).ToString("dd/MM/yyyy HH:mm")</td><td>@d.Reference</td><td>@d.Client.Nom @d.Client.Prenom</td><td>@d.TypeDeclaration</td><td>@d.Statut</td><td class="bank-actions"><a asp-action="Details" asp-route-id="@d.Id" class="bank-btn bank-btn-secondary">Détails</a>@if (d.Statut is "Brouillon" or "Validee") { <form asp-action="Transmettre" asp-route-id="@d.Id" method="post"><button type="submit" class="bank-btn bank-btn-primary">Marquer transmise</button></form> }</td></tr>
+        }
+        @if (!Model.Any()) { <tr><td colspan="6" class="bank-empty">Aucune déclaration pour ce filtre.</td></tr> }
+        </tbody></table></div>
+        <p class="bank-note">La transmission est simulée localement tant qu'aucun connecteur officiel CNRF n'est configuré.</p>
+    </div>
+</section>

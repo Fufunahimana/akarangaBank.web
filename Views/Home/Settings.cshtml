@@ -1,0 +1,60 @@
+@{
+    ViewData["Title"] = "Paramètres";
+}
+
+<div class="admin-dashboard settings-page">
+    <header class="dashboard-heading">
+        <div>
+            <p class="dashboard-eyebrow" data-i18n="settings.eyebrow">PRÉFÉRENCES DE L’APPLICATION</p>
+            <h1 data-i18n="settings.title">Paramètres</h1>
+            <p class="dashboard-subtitle" data-i18n="settings.subtitle">Personnalisez l’apparence et la langue de votre espace de travail.</p>
+        </div>
+    </header>
+
+    <section class="settings-grid">
+        <article class="dashboard-panel settings-panel">
+            <div class="settings-panel-heading"><span class="settings-icon" aria-hidden="true">◐</span><div><h2 data-i18n="settings.appearance">Apparence</h2><p data-i18n="settings.appearanceDescription">Choisissez le thème affiché dans l’application.</p></div></div>
+            <div class="setting-row">
+                <div><strong data-i18n="settings.darkMode">Mode nuit</strong><span data-i18n="settings.darkModeDescription">Réduit la luminosité de l’interface.</span></div>
+                <label class="switch-control"><input id="dark-mode-toggle" type="checkbox" aria-label="Activer le mode nuit"><span class="switch-slider"></span></label>
+            </div>
+        </article>
+
+        <article class="dashboard-panel settings-panel">
+            <div class="settings-panel-heading"><span class="settings-icon language-icon" aria-hidden="true">文</span><div><h2 data-i18n="settings.language">Langue</h2><p data-i18n="settings.languageDescription">Sélectionnez la langue de l’interface.</p></div></div>
+            <div class="setting-row language-setting-row">
+                <label for="language-select" data-i18n="settings.interfaceLanguage">Langue de l’application</label>
+                <select id="language-select" class="settings-select">
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                    <option value="sw">Kiswahili</option>
+                </select>
+            </div>
+        </article>
+
+        <article class="dashboard-panel settings-panel security-settings-panel">
+            <div class="settings-panel-heading"><span class="settings-icon security-icon" aria-hidden="true">⛨</span><div><h2 data-i18n="settings.security">Sécurité et opérations</h2><p data-i18n="settings.securityDescription">Règles actives pour les opérations bancaires.</p></div></div>
+            <div class="setting-info-row"><div><strong data-i18n="settings.interbranchTransfers">Virements interagences</strong><span data-i18n="settings.interbranchDescription">Validation administrateur obligatoire avant comptabilisation.</span></div><span class="setting-status" data-i18n="settings.mandatory">Obligatoire</span></div>
+            <div class="setting-info-row"><div><strong data-i18n="settings.currency">Devise principale</strong><span data-i18n="settings.currencyDescription">Les montants sont présentés dans la devise de chaque compte.</span></div><span class="setting-status setting-status-neutral">BIF</span></div>
+            <div class="setting-info-row"><div><strong data-i18n="settings.session">Session</strong><span data-i18n="settings.sessionDescription">Expiration après 60 minutes d’inactivité.</span></div><span class="setting-status setting-status-neutral">60 min</span></div>
+        </article>
+        <div class="settings-save-note"><span aria-hidden="true">✓</span><span data-i18n="settings.savedLocally">Vos préférences d’affichage sont enregistrées sur cet appareil.</span></div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggle = document.getElementById('dark-mode-toggle');
+            const languageSelect = document.getElementById('language-select');
+            if (themeToggle) {
+                themeToggle.checked = document.documentElement.dataset.theme === 'dark';
+                themeToggle.addEventListener('change', () => window.akarangaPreferences.setTheme(themeToggle.checked ? 'dark' : 'light'));
+            }
+            if (languageSelect) {
+                languageSelect.value = window.akarangaPreferences.getLanguage();
+                languageSelect.addEventListener('change', () => window.akarangaPreferences.setLanguage(languageSelect.value));
+            }
+        });
+    </script>
+}

@@ -1,0 +1,68 @@
+@model AkarangaBank.Web.Models.Pret
+@{ ViewData["Title"] = "Détails du prêt"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Prêt @Model.Reference</h1><p>@Model.TypePret.Libelle · @Model.Statut</p></div><a asp-action="Index" class="bank-btn bank-btn-light">Retour à la liste</a></header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
+        @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }
+        <dl class="bank-details">
+            <dt>Client</dt><dd>@Model.Client.Nom @Model.Client.Prenom (@Model.Client.NumeroClient)</dd>
+            <dt>Compte de remboursement</dt><dd>@Model.CompteDebit.NumeroCompte</dd>
+            <dt>Principal</dt><dd>@Model.MontantPrincipal.ToString("N2") BIF</dd>
+            <dt>Taux annuel</dt><dd>@Model.TauxInteret.ToString("N2") %</dd>
+            <dt>Mensualité estimée</dt><dd>@Model.Mensualite.ToString("N2") BIF</dd>
+            <dt>Durée</dt><dd>@Model.DureeMois mois</dd>
+            <dt>Capital restant</dt><dd>@Model.SoldeRestant.ToString("N2") BIF</dd>
+            <dt>Montant déjà remboursé</dt><dd>@Model.MontantRembourse.ToString("N2") BIF</dd>
+            @if (!string.IsNullOrWhiteSpace(Model.MotifRejet)) { <dt>Motif du rejet</dt><dd>@Model.MotifRejet</dd> }
+        </dl>
+
+        @if (Model.Statut == "EnAttente" && (User.IsInRole("admin") || User.IsInRole("gestionnaire")))
+        {
+            <h2 class="bank-section-title">Décision</h2>
+            <div class="bank-filter">
+                <form asp-action="Valider" method="post" class="bank-form">
+                    <input type="hidden" name="PretId" value="@Model.Id" />
+                    <div class="bank-form-group"><label for="TauxInteret" class="bank-label">Taux annuel personnalisé (%)</label><input id="TauxInteret" name="TauxInteret" type="number" min="@Model.TypePret.TauxMin" max="@Model.TypePret.TauxMax" step="0.01" value="@Model.TauxInteret" class="bank-control" required /></div>
+                    <button class="bank-btn bank-btn-primary" type="submit">Valider le prêt</button>
+                </form>
+                <form asp-action="Rejeter" method="post" class="bank-form">
+                    <input type="hidden" name="PretId" value="@Model.Id" />
+                    <div class="bank-form-group"><label for="Motif" class="bank-label">Motif obligatoire en cas de rejet</label><input id="Motif" name="Motif" maxlength="500" class="bank-control" required /></div>
+                    <button class="bank-btn bank-btn-secondary" type="submit">Rejeter la demande</button>
+                </form>
+            </div>
+        }
+        @if (Model.Statut == "Valide" && User.IsInRole("admin"))
+        {
+            <form asp-action="Debloquer" method="post" asp-route-id="@Model.Id" class="bank-actions"><button class="bank-btn bank-btn-primary" type="submit">Débloquer et créditer le compte</button></form>
+        }
+
+        <h2 class="bank-section-title">Échéancier</h2>
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead><tr><th>N°</th><th>Échéance</th><th>Capital</th><th>Intérêts</th><th>Pénalité</th><th>Total</th><th>Solde restant</th><th>Statut</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var e in Model.Echeances.OrderBy(e => e.NumeroEcheance))
+                {
+                    <tr>
+                        <td>@e.NumeroEcheance</td><td>@e.DateEcheance.ToString("dd/MM/yyyy")</td>
+                        <td>@e.Capital.ToString("N2")</td><td>@e.Interet.ToString("N2")</td><td>@e.Penalite.ToString("N2")</td>
+                        <td>@e.MontantTotal.ToString("N2") BIF</td><td>@e.SoldeRestant.ToString("N2") BIF</td>
+                        <td>@e.Statut</td>
+                        <td>
+                            @if ((User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier") || User.IsInRole("client")) && e.Statut != "Payee" && (Model.Statut is "EnCours" or "Impaye"))
+                            {
+                                <form asp-action="Rembourser" method="post"><input type="hidden" name="echeanceId" value="@e.Id" /><button class="bank-btn bank-btn-primary" type="submit">Payer</button></form>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (Model.Echeances.Count == 0) { <tr><td colspan="9" class="bank-empty">L'échéancier sera généré au déblocage du prêt.</td></tr> }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,51 @@
+@model IEnumerable<AkarangaBank.Web.Models.Operation>
+@{ ViewData["Title"] = "Approbations AML"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div><h1>Opérations AML en attente</h1><p>@Model.Count() opération(s) à approuver</p></div>
+        <a asp-action="Journal" class="bank-btn bank-btn-light">Journal</a>
+    </header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
+        @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead>
+                    <tr><th>Date</th><th>Référence</th><th>Type</th><th>Compte / client</th><th>Initiateur</th><th class="text-end">Montant</th><th>Contrôle</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var operation in Model)
+                        {
+                            <tr>
+                                <td>@BankTime.ToLocal(operation.DateOperation).ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>@operation.Reference</td>
+                                <td>@(operation.TypeOperation == "Depot" ? "Dépôt" : "Retrait")</td>
+                                <td>@operation.Compte.NumeroCompte — @operation.Compte.Client.Nom @operation.Compte.Client.Prenom</td>
+                                <td>@operation.Utilisateur.NomComplet</td>
+                                <td class="text-end">@operation.Montant.ToString("N2") @operation.Devise</td>
+                                <td>Dépassement du seuil AML</td>
+                                <td>
+                                    <form asp-action="ValiderAml" asp-route-id="@operation.Id" method="post" class="d-inline">
+                                        <button type="submit" class="bank-btn bank-btn-primary">Approuver</button>
+                                    </form>
+                                    <form asp-action="RejeterAml" asp-route-id="@operation.Id" method="post" class="d-inline">
+                                        <input type="hidden" name="motif" value="Rejeté par un administrateur après contrôle AML" />
+                                        <button type="submit" class="bank-btn bank-btn-secondary">Rejeter</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="8" class="bank-empty">Aucune opération AML en attente.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

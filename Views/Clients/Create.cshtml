@@ -1,0 +1,176 @@
+@model AkarangaBank.Web.ViewModels.ClientCreateViewModel
+
+@{
+    ViewData["Title"] = "Nouveau client";
+}
+
+<style>
+    .bank-form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .bank-form-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 25px;
+    }
+    .bank-form-header h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .bank-form-header p {
+        margin: 5px 0 0;
+        opacity: 0.85;
+        font-size: 0.95rem;
+    }
+    .bank-form-body {
+        padding: 30px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+    .form-control-custom {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-control-custom:focus {
+        border-color: #0d6efd;
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+    }
+    .text-danger {
+        color: #dc3545;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        display: block;
+    }
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+    }
+    .btn-submit {
+        background-color: #0d6efd;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-submit:hover {
+        background-color: #0b5ed7;
+    }
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.2s;
+    }
+    .btn-cancel:hover {
+        background-color: #5c636a;
+        color: white;
+    }
+</style>
+
+<div class="bank-form-container">
+    <div class="bank-form-header">
+        <h2>AkarangaBank</h2>
+        <p>Enregistrer un nouveau client</p>
+    </div>
+
+    <div class="bank-form-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 20px;"></div>
+
+            <div class="form-group">
+                <label asp-for="NumeroClient" class="form-label">Numéro client</label>
+                <input asp-for="NumeroClient" class="form-control-custom" placeholder="Ex: CLI-00000X" />
+                <span asp-validation-for="NumeroClient" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Nom" class="form-label">Nom</label>
+                <input asp-for="Nom" class="form-control-custom" placeholder="Nom de famille" />
+                <span asp-validation-for="Nom" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Prenom" class="form-label">Prénom</label>
+                <input asp-for="Prenom" class="form-control-custom" placeholder="Prénom" />
+                <span asp-validation-for="Prenom" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DateNaissance" class="form-label">Date de naissance</label>
+                <input asp-for="DateNaissance" class="form-control-custom" type="date" />
+                <span asp-validation-for="DateNaissance" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="NumeroCNI" class="form-label">Numéro CNI / Passeport</label>
+                <input asp-for="NumeroCNI" class="form-control-custom" placeholder="Ex: BJM-XXXXXXX" />
+                <span asp-validation-for="NumeroCNI" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Telephone" class="form-label">Téléphone</label>
+                <input asp-for="Telephone" class="form-control-custom" placeholder="Ex: +257..." />
+                <span asp-validation-for="Telephone" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control-custom" type="email" placeholder="client@example.bi" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Adresse" class="form-label">Adresse</label>
+                <input asp-for="Adresse" class="form-control-custom" placeholder="Adresse résidentielle" />
+                <span asp-validation-for="Adresse" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AgenceId" class="form-label">Agence de rattachement</label>
+                <select asp-for="AgenceId" class="form-control-custom" asp-items="ViewBag.Agences">
+                    <option value="">-- Sélectionner une agence --</option>
+                </select>
+                <span asp-validation-for="AgenceId" class="text-danger"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">Enregistrer</button>
+                <a asp-action="Index" class="btn-cancel">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,39 @@
+@using Microsoft.AspNetCore.Identity
+@using AkarangaBank.Web.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<div class="bank-user-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        var currentUser = await UserManager.GetUserAsync(User);
+        var displayName = string.IsNullOrWhiteSpace(currentUser?.NomComplet)
+            ? currentUser?.UserName ?? "Utilisateur"
+            : currentUser.NomComplet;
+        var userInitial = string.IsNullOrWhiteSpace(displayName) ? "U" : displayName.Trim()[0].ToString().ToUpperInvariant();
+
+        <div class="bank-user-summary" title="@currentUser?.Email">
+            <span class="bank-user-avatar" aria-hidden="true">@userInitial</span>
+            <span class="bank-user-copy">
+                <span class="bank-user-name">@displayName</span>
+                <span class="bank-user-email">@currentUser?.Email</span>
+            </span>
+            @if (currentUser?.TwoFactorEnabled == true)
+            {
+                <span class="bank-2fa-badge" title="Authentification à deux facteurs activée">2FA</span>
+            }
+        </div>
+
+        <div class="bank-user-actions">
+            <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn-bank-outline" data-i18n="nav.myAccount">Mon compte</a>
+            <form class="bank-logout-form" asp-area="Identity" asp-page="/Account/Logout"
+                  asp-route-returnUrl="@Url.Action("Index", User.IsInRole("admin") ? "Home" : "Clients", new { area = "" })" method="post">
+                <button type="submit" class="btn-bank-danger" data-i18n="nav.logout">Déconnexion</button>
+            </form>
+        </div>
+    }
+    else
+    {
+        <a asp-area="Identity" asp-page="/Account/Login" class="btn-bank-outline" data-i18n="nav.login">Connexion</a>
+    }
+</div>

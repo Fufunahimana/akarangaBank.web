@@ -1,0 +1,30 @@
+@{
+    Layout = "/Views/Shared/_Layout.cshtml";
+    var pageTitle = ViewData["Title"]?.ToString() ?? "Profile";
+}
+
+<partial name="_ManageStyles" />
+
+<main class="identity-manage-shell">
+    <header class="identity-manage-header">
+        <div>
+            <span class="identity-manage-eyebrow">AkarangaBank · Espace personnel</span>
+            <h1>@pageTitle</h1>
+            <p>Gérez vos informations personnelles et la sécurité de votre compte.</p>
+        </div>
+        <span class="identity-manage-secure">Compte sécurisé</span>
+    </header>
+
+    <div class="identity-manage-grid">
+        <aside class="identity-manage-sidebar" aria-label="Navigation du profil">
+            <partial name="_ManageNav" />
+        </aside>
+        <section class="identity-manage-content">
+            @RenderBody()
+        </section>
+    </div>
+</main>
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

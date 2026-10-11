@@ -1,0 +1,22 @@
+@model IEnumerable<AkarangaBank.Web.Models.SeuilAML>
+@{ ViewData["Title"] = "Seuils AML"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Seuils AML</h1><p>Les changements sont enregistrés dans la piste d'audit.</p></div></header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
+        @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }
+        <div class="bank-table-wrap"><table class="bank-table"><thead><tr><th>Code</th><th>Libellé</th><th>Type d'opération</th><th>Devise</th><th>Montant actuel</th><th>État</th><th>Modification</th></tr></thead><tbody>
+        @foreach (var seuil in Model)
+        {
+            <tr><td><strong>@seuil.Code</strong></td><td>@seuil.Libelle</td><td>@seuil.TypeOperation</td><td>@seuil.Devise</td><td>@seuil.Montant.ToString("N2")</td><td>@(seuil.Actif ? "Actif" : "Inactif")</td><td>
+                @if (seuil.Actif)
+                {
+                    <form asp-action="Modifier" method="post" class="bank-actions"><input type="hidden" name="id" value="@seuil.Id" /><input class="bank-control" type="number" name="montant" min="0.01" step="0.01" value="@seuil.Montant.ToString(System.Globalization.CultureInfo.InvariantCulture)" aria-label="Nouveau montant pour @seuil.Code / @seuil.TypeOperation" /><button class="bank-btn bank-btn-primary" type="submit">Enregistrer</button></form>
+                }
+            </td></tr>
+        }
+        </tbody></table></div>
+    </div>
+</section>

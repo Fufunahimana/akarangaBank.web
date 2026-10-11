@@ -1,0 +1,62 @@
+@model IEnumerable<AkarangaBank.Web.Models.AlerteAML>
+@{ ViewData["Title"] = "Alertes AML"; }
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div><h1>Alertes AML</h1><p>Alertes de conformité et de surveillance</p></div>
+        <a asp-action="ExporterCsv" asp-route-statut="@ViewBag.Statut" asp-route-niveau="@ViewBag.Niveau" class="bank-btn bank-btn-light">Exporter CSV</a>
+    </header>
+    <div class="bank-page-body">
+        @if (TempData["Success"] is string msg) { <div class="bank-flash" role="status">@msg</div> }
+        <form method="get" class="bank-filter">
+            <div class="bank-form-group">
+                <label for="statut" class="bank-label">Statut</label>
+                <select id="statut" name="statut" class="bank-control">
+                    <option value="">Tous</option>
+                    @foreach (var statut in new[] { "Ouverte", "EnCours", "Traitee", "Classee" })
+                    {
+                        <option value="@statut" selected="@(ViewBag.Statut as string == statut)">@statut</option>
+                    }
+                </select>
+            </div>
+            <div class="bank-form-group">
+                <label for="niveau" class="bank-label">Niveau</label>
+                <select id="niveau" name="niveau" class="bank-control">
+                    <option value="">Tous</option>
+                    @foreach (var niveau in new[] { "Faible", "Moyen", "Eleve", "Critique" })
+                    {
+                        <option value="@niveau" selected="@(ViewBag.Niveau as string == niveau)">@niveau</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="bank-btn bank-btn-primary">Filtrer</button>
+        </form>
+        <div class="bank-table-wrap">
+            <table class="bank-table">
+                <thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Niveau</th><th>Statut</th><th></th></tr></thead>
+                <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var alerte in Model)
+                    {
+                        var badge = alerte.Niveau == "Critique" ? "bank-badge-danger" : alerte.Niveau == "Eleve" ? "bank-badge-warning" : "bank-badge-info";
+                        <tr>
+                            <td>@BankTime.ToLocal(alerte.DateAlerte).ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>@alerte.Client.Nom @alerte.Client.Prenom</td>
+                            <td>@alerte.TypeAlerte</td>
+                            <td><span class="bank-badge @badge">@alerte.Niveau</span></td>
+                            <td>@alerte.Statut</td>
+                            <td><a asp-action="Details" asp-route-id="@alerte.Id" class="bank-btn bank-btn-primary">Détails</a></td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6" class="bank-empty">Aucune alerte pour ces critères.</td></tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
