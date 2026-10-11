@@ -62,3 +62,7 @@ ConnectionStrings__AkarangaBank=${{MySQL.MYSQL_URL}}
 ```
 
 L'application accepte aussi les variables individuelles `MYSQL*` et `MARIADB_*`. Après l'ajout de la référence, appliquez les changements en attente et redéployez le service web. Vous pouvez aussi définir directement `ConnectionStrings__AkarangaBank` avec une chaîne de connexion MySqlConnector valide. Ne stockez pas les identifiants de la base dans les fichiers du dépôt.
+
+### Erreur « Bad Request - Invalid Hostname »
+
+Si le navigateur affiche cette erreur avec le domaine public Railway, la requête est rejetée par l'edge Railway avant d'arriver à ASP.NET Core. Vérifiez dans **service web → Settings → Networking** que le domaine `akarangabank-production.up.railway.app` est bien généré/attaché à ce service, et non à un autre service du projet. Le Dockerfile écoute sur le port `8080` : configurez le port cible public sur `8080` si Railway le demande. Appliquez les changements puis redéployez le service web. `AllowedHosts` inclut déjà ce domaine dans `appsettings.Production.json`; le changer ne corrige pas un domaine qui n'est pas rattaché au service côté Railway.

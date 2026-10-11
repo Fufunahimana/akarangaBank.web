@@ -1234,7 +1234,6 @@ D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\v0z
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\yfc7ypekbg-{0}-mlv21k5csn-mlv21k5csn.gz
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\v1xbsgcwh6-{0}-5v7l68ugzt-5v7l68ugzt.gz
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\rnut469x07-{0}-90yqlj465b-90yqlj465b.gz
-D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\3xphuv31r5-{0}-6ewugi52pc-6ewugi52pc.gz
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\5fhkglqpg5-{0}-zub09dkrxp-zub09dkrxp.gz
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\6mzkpnedn3-{0}-pj5nd1wqec-pj5nd1wqec.gz
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\99k1cj8b9c-{0}-43atpzeawx-43atpzeawx.gz
@@ -1263,3 +1262,4 @@ D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\refint\Akarang
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\AkarangaBank.Web.pdb
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\AkarangaBank.Web.genruntimeconfig.cache
 D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\ref\AkarangaBank.Web.dll
+D:\csharptest\akarangaBank\akar\akarangaBank.web\obj\Debug\net9.0\compressed\3xphuv31r5-{0}-5xw4gm5iqr-5xw4gm5iqr.gz
