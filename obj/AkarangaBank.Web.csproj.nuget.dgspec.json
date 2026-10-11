@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\csharptest\\akarangaBank\\AkarangaBank.Web\\AkarangaBank.Web.csproj": {}
+    "D:\\csharptest\\akarangaBank\\akar\\akarangaBank.web\\AkarangaBank.Web.csproj": {}
   },
   "projects": {
-    "D:\\csharptest\\akarangaBank\\AkarangaBank.Web\\AkarangaBank.Web.csproj": {
+    "D:\\csharptest\\akarangaBank\\akar\\akarangaBank.web\\AkarangaBank.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\csharptest\\akarangaBank\\AkarangaBank.Web\\AkarangaBank.Web.csproj",
+        "projectUniqueName": "D:\\csharptest\\akarangaBank\\akar\\akarangaBank.web\\AkarangaBank.Web.csproj",
         "projectName": "AkarangaBank.Web",
-        "projectPath": "D:\\csharptest\\akarangaBank\\AkarangaBank.Web\\AkarangaBank.Web.csproj",
+        "projectPath": "D:\\csharptest\\akarangaBank\\akar\\akarangaBank.web\\AkarangaBank.Web.csproj",
         "packagesPath": "C:\\Users\\Nahi\\.nuget\\packages\\",
-        "outputPath": "D:\\csharptest\\akarangaBank\\AkarangaBank.Web\\obj\\",
+        "outputPath": "D:\\csharptest\\akarangaBank\\akar\\akarangaBank.web\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -44,3 +44,17 @@ Pour lancer ce projet en local, suivez les étapes ci-dessous :
 
 ---
 *Université Polytechnique de Gitega (UPG) — Faculté TIC — Génie Logiciel Bac III (2025-2026)*
+
+## Déploiement sur Railway
+
+Ajoutez un service MySQL au projet Railway, puis liez ses variables au service web dans **Variables**. Créez les références suivantes en remplaçant `MySQL` par le nom exact de votre service de base de données :
+
+```text
+MYSQLHOST=${{MySQL.MYSQLHOST}}
+MYSQLPORT=${{MySQL.MYSQLPORT}}
+MYSQLDATABASE=${{MySQL.MYSQLDATABASE}}
+MYSQLUSER=${{MySQL.MYSQLUSER}}
+MYSQLPASSWORD=${{MySQL.MYSQLPASSWORD}}
+```
+
+L'application construit la chaîne de connexion à partir de ces variables si `ConnectionStrings__AkarangaBank` n'est pas défini. Vous pouvez aussi définir directement cette dernière variable avec une chaîne MySQL valide. Ne stockez pas les identifiants de la base dans les fichiers du dépôt.
