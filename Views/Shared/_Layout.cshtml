@@ -33,6 +33,10 @@
                 <a class="bank-nav-link @ActiveFor("Clients")" asp-controller="Clients" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" /></svg><span data-i18n="nav.clients">Clients</span></a>
                 <a class="bank-nav-link @ActiveFor("Agences")" asp-controller="Agences" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5M8 10h.01M12 10h.01M16 10h.01" /></svg><span data-i18n="nav.agencies">Agences</span></a>
                 <a class="bank-nav-link @ActiveFor("Comptes")" asp-controller="Comptes" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18v13H3zM3 10h18M7 15h4M17 15h.01M6 3h12" /></svg><span data-i18n="nav.accounts">Comptes</span></a>
+                @if (User.IsInRole("auditeur") || User.IsInRole("admin"))
+                {
+                    <a class="bank-nav-link @ActiveFor("Rapports")" asp-controller="Rapports" asp-action="AuditPdf"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l5 5v13H6zM14 3v6h6M9 14h8M9 18h8" /></svg><span>Rapport PDF</span></a>
+                }
 
                 <p class="sidebar-section-label" data-i18n="nav.operations">OPÉRATIONS</p>
                 <a class="bank-nav-link @ActiveFor("Operations", "Journal")" asp-controller="Operations" asp-action="Journal"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 1 4 17.5zM4 5h13M8 9h8M8 13h8M8 17h5" /></svg><span data-i18n="nav.journal">Journal</span></a>

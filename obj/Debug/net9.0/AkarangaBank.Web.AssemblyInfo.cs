@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AkarangaBank.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5ad061b75e5ceed200e93cf1d4490c1d96618cf2")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+78857411b37ccd935d2be92ee1f7eeb8d5227b1e")]
 [assembly: System.Reflection.AssemblyProductAttribute("AkarangaBank.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AkarangaBank.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

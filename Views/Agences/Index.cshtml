@@ -182,7 +182,10 @@
             <h2>AkarangaBank</h2>
             <p>Liste des Agences</p>
         </div>
-        <a href="/Agences/Create" class="btn-add-item">+ Nouvelle agence</a>
+        @if (!User.IsInRole("auditeur"))
+        {
+            <a href="/Agences/Create" class="btn-add-item">+ Nouvelle agence</a>
+        }
     </div>
 
     <div class="bank-table-body">
@@ -225,8 +228,11 @@
                         </td>
                         <td style="text-align: right;">
                             <a asp-action="Details" asp-route-id="@agence.Id" class="action-link">Détails</a>
-                            <a asp-action="Edit" asp-route-id="@agence.Id" class="action-link" style="color: #ffc107;">Modifier</a>
-                            <a asp-action="Delete" asp-route-id="@agence.Id" class="action-link action-link-danger">Supprimer</a>
+                            @if (!User.IsInRole("auditeur"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@agence.Id" class="action-link" style="color: #ffc107;">Modifier</a>
+                                <a asp-action="Delete" asp-route-id="@agence.Id" class="action-link action-link-danger">Supprimer</a>
+                            }
                         </td>
                     </tr>
                 }

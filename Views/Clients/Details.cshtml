@@ -14,7 +14,10 @@
             <p>@client.NumeroClient · @client.Nom @client.Prenom</p>
         </div>
         <div class="bank-actions">
-            <a asp-action="Edit" asp-route-id="@client.Id" class="bank-btn bank-btn-light">Modifier</a>
+            @if (!User.IsInRole("auditeur"))
+            {
+                <a asp-action="Edit" asp-route-id="@client.Id" class="bank-btn bank-btn-light">Modifier</a>
+            }
             <a asp-action="Index" class="bank-btn bank-btn-secondary">Retour à la liste</a>
         </div>
     </header>

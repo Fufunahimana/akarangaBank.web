@@ -188,7 +188,10 @@
         <!-- Boutons d'action -->
         <div class="form-actions">
             <a asp-action="Index" class="btn-back">Retour à la liste</a>
-            <a asp-action="Edit" asp-route-id="@Model.Agence.Id" class="btn-edit">Modifier</a>
+            @if (!User.IsInRole("auditeur"))
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Agence.Id" class="btn-edit">Modifier</a>
+            }
         </div>
     </div>
 </div>

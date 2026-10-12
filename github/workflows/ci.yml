@@ -1,0 +1,63 @@
+name: CI/CD AkarangaBank 
+ 
+on: 
+  push: 
+    branches: [ main, develop ] 
+  pull_request: 
+    branches: [ main ] 
+ 
+jobs: 
+  build-and-test: 
+    runs-on: ubuntu-latest 
+ 
+    steps: 
+    - name: Checkout 
+      uses: actions/checkout@v4 
+ 
+    - name: Setup .NET 
+      uses: actions/setup-dotnet@v4 
+      with:  
+        dotnet-version: '10.0.401' 
+ 
+    - name: Restore 
+      run: dotnet restore 
+ 
+    - name: Build 
+      run: dotnet build --no-restore --configuration Release 
+ 
+    - name: Test 
+      run: dotnet test --no-build --configuration Release \ 
+           --logger "trx;LogFileName=test-results.trx" \ 
+           --collect:"XPlat Code Coverage" 
+ 
+    - name: Upload test results 
+      uses: actions/upload-artifact@v4 
+      if: always() 
+      with: 
+        name: test-results 
+        path: '**/test-results.trx' 
+ 
+  deploy: 
+    needs: build-and-test 
+    if: github.ref == 'refs/heads/main' 
+    runs-on: ubuntu-latest 
+ 
+    steps: 
+    - name: Checkout 
+      uses: actions/checkout@v4 
+ 
+    - name: Setup .NET 
+      uses: actions/setup-dotnet@v4 
+      with: 
+        dotnet-version: '8.0.x' 
+ 
+    - name: Publish 
+      run: dotnet publish AkarangaBank.Web/AkarangaBank.Web.csproj \ 
+           -c Release -o ./publish 
+ 
+    - name: Deploy to Azure 
+      uses: azure/webapps-deploy@v3 
+      with: 
+        app-name: akaranga-bank-api 
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} 
+package: ./publish 

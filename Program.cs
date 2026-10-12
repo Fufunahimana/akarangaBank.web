@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity; 
 using Microsoft.AspNetCore.Mvc.Authorization; 
 using Microsoft.EntityFrameworkCore; 
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args); 
  
@@ -18,10 +19,11 @@ else
 {
     connectionString = RailwayMySqlConfiguration.GetConnectionString(builder.Configuration);
 }
-
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
 builder.Services.AddDbContext<AkarangaBankContext>(options => 
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))); 
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AkarangaBankContext>("database");
 
 // --- Identity (Unique et complet avec rôles et options de sécurité) --- 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options => 
@@ -119,6 +121,7 @@ builder.Services.AddControllersWithViews(options =>
         .RequireAuthenticatedUser() 
         .Build(); 
     options.Filters.Add(new AuthorizeFilter(policy)); 
+    options.Filters.Add(new AuditeurLectureSeuleFilter());
 }); 
  
 builder.Services.AddRazorPages(options => 
@@ -180,6 +183,8 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}"); 
  
 app.MapRazorPages(); 
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready");
 
 app.Run();
 

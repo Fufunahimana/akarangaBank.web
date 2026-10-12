@@ -16,7 +16,10 @@
             <p>@compte.NumeroCompte · @(client is null ? "Client non renseigné" : $"{client.Prenom} {client.Nom}")</p>
         </div>
         <nav class="bank-actions" aria-label="Actions sur le compte">
-            <a asp-action="Edit" asp-route-id="@compte.Id" class="bank-btn bank-btn-light">Modifier</a>
+            @if (!User.IsInRole("auditeur"))
+            {
+                <a asp-action="Edit" asp-route-id="@compte.Id" class="bank-btn bank-btn-light">Modifier</a>
+            }
             <a asp-action="Index" class="bank-btn bank-btn-secondary">Retour à la liste</a>
         </nav>
     </header>

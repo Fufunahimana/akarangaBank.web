@@ -107,7 +107,10 @@
             <h2>AkarangaBank</h2>
             <p>Liste des Comptes</p>
         </div>
-        <a href="/Comptes/Create" class="btn-add-item">+ Nouveau compte</a>
+        @if (!User.IsInRole("auditeur"))
+        {
+            <a href="/Comptes/Create" class="btn-add-item">+ Nouveau compte</a>
+        }
     </div>
 
     <div class="bank-table-body">
