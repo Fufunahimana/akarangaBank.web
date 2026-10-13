@@ -1,9 +1,23 @@
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@inject AkarangaBank.Web.Data.AkarangaBankContext BankContext
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? string.Empty;
     var isManagePage = currentPage.Contains("/Manage", StringComparison.OrdinalIgnoreCase);
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var isClient = User.IsInRole("client");
+    var clientHasActiveAccount = !isClient;
+    if (isAuthenticated && isClient && int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var currentUserId))
+    {
+        var clientId = await BankContext.Users.AsNoTracking()
+            .Where(user => user.Id == currentUserId)
+            .Select(user => user.ClientId)
+            .FirstOrDefaultAsync();
+        clientHasActiveAccount = clientId.HasValue && await BankContext.Comptes.AsNoTracking()
+            .AnyAsync(account => account.ClientId == clientId.Value && account.Statut == "Actif");
+    }
     string ActiveFor(string controller, string? action = null) =>
         string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
         && (action is null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase))
@@ -17,7 +31,7 @@
 {
     <div class="bank-app-shell">
         <aside class="bank-sidebar">
-            <a class="bank-brand" asp-controller="@(User.IsInRole("admin") ? "Home" : "Clients")" asp-action="Index" aria-label="AkarangaBank, accueil">
+            <a class="bank-brand" asp-controller="@(User.IsInRole("admin") || User.IsInRole("client") ? "Home" : "Clients")" asp-action="Index" aria-label="AkarangaBank, accueil">
                 <span class="bank-brand-mark" aria-hidden="true">AK</span>
                 <span class="bank-brand-copy"><strong>AkarangaBank</strong><small data-i18n="nav.workspace">Espace bancaire</small></span>
             </a>
@@ -29,17 +43,36 @@
                     <a class="bank-nav-link @ActiveFor("Home", "Index")" asp-controller="Home" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z" /></svg><span data-i18n="nav.dashboard">Tableau de bord</span></a>
                 }
 
-                <p class="sidebar-section-label" data-i18n="nav.customers">CLIENTS ET AGENCES</p>
-                <a class="bank-nav-link @ActiveFor("Clients")" asp-controller="Clients" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" /></svg><span data-i18n="nav.clients">Clients</span></a>
-                <a class="bank-nav-link @ActiveFor("Agences")" asp-controller="Agences" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5M8 10h.01M12 10h.01M16 10h.01" /></svg><span data-i18n="nav.agencies">Agences</span></a>
-                <a class="bank-nav-link @ActiveFor("Comptes")" asp-controller="Comptes" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18v13H3zM3 10h18M7 15h4M17 15h.01M6 3h12" /></svg><span data-i18n="nav.accounts">Comptes</span></a>
+                @if (User.IsInRole("client"))
+                {
+                    <p class="sidebar-section-label">MON ESPACE</p>
+                }
+                else
+                {
+                    <p class="sidebar-section-label" data-i18n="nav.customers">CLIENTS ET AGENCES</p>
+                }
+                @if (!User.IsInRole("client"))
+                {
+                    <a class="bank-nav-link @ActiveFor("Clients")" asp-controller="Clients" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 8v6M23 11h-6" /></svg><span data-i18n="nav.clients">Clients</span></a>
+                }
+                @if (!isClient || !clientHasActiveAccount)
+                {
+                    <a class="bank-nav-link @ActiveFor("Agences")" asp-controller="Agences" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5M8 10h.01M12 10h.01M16 10h.01" /></svg><span data-i18n="nav.agencies">Agences</span></a>
+                }
+                @if (!isClient || clientHasActiveAccount)
+                {
+                    <a class="bank-nav-link @ActiveFor("Comptes")" asp-controller="Comptes" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18v13H3zM3 10h18M7 15h4M17 15h.01M6 3h12" /></svg><span>@(isClient ? "Mon compte" : "Comptes")</span></a>
+                }
                 @if (User.IsInRole("auditeur") || User.IsInRole("admin"))
                 {
                     <a class="bank-nav-link @ActiveFor("Rapports")" asp-controller="Rapports" asp-action="AuditPdf"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l5 5v13H6zM14 3v6h6M9 14h8M9 18h8" /></svg><span>Rapport PDF</span></a>
                 }
 
-                <p class="sidebar-section-label" data-i18n="nav.operations">OPÉRATIONS</p>
-                <a class="bank-nav-link @ActiveFor("Operations", "Journal")" asp-controller="Operations" asp-action="Journal"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 1 4 17.5zM4 5h13M8 9h8M8 13h8M8 17h5" /></svg><span data-i18n="nav.journal">Journal</span></a>
+                @if (!isClient || clientHasActiveAccount)
+                {
+                    <p class="sidebar-section-label" data-i18n="nav.operations">OPÉRATIONS</p>
+                    <a class="bank-nav-link @ActiveFor("Operations", "Journal")" asp-controller="Operations" asp-action="Journal"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 1 4 17.5zM4 5h13M8 9h8M8 13h8M8 17h5" /></svg><span data-i18n="nav.journal">Journal</span></a>
+                }
                 @if (User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier"))
                 {
                     <a class="bank-nav-link @ActiveFor("Operations", "Depot")" asp-controller="Operations" asp-action="Depot"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M4 20h16" /></svg><span data-i18n="nav.deposit">Dépôt</span></a>
@@ -48,6 +81,10 @@
                     <a class="bank-nav-link @ActiveFor("VirementsInterAgences")" asp-controller="VirementsInterAgences" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 12h6M9 16h6M3 8h18" /></svg><span data-i18n="nav.interbranch">Virements interagences</span></a>
                     <a class="bank-nav-link @ActiveFor("Prets")" asp-controller="Prets" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg><span data-i18n="nav.loans">Prêts</span></a>
                     <a class="bank-nav-link @ActiveFor("Cartes")" asp-controller="Cartes" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18v13H3zM3 10h18M7 15h4" /></svg><span data-i18n="nav.cards">Cartes</span></a>
+                }
+                else if (isClient && clientHasActiveAccount)
+                {
+                    <a class="bank-nav-link @ActiveFor("Cartes")" asp-controller="Cartes" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18v13H3zM3 10h18M7 15h4" /></svg><span data-i18n="nav.cards">Ma carte et mes opérations</span></a>
                 }
 
                 @if (User.IsInRole("gestionnaire"))
@@ -63,8 +100,11 @@
                     <a class="bank-nav-link @ActiveFor("Compensations")" asp-controller="Compensations" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 7h13M12 3l4 4-4 4M21 17H8m4-4-4 4 4 4" /></svg><span data-i18n="nav.compensations">Compensations</span></a>
                     <a class="bank-nav-link @ActiveFor("CNRF")" asp-controller="CNRF" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8" /></svg><span data-i18n="nav.cnrf">CNRF</span></a>
                     <a class="bank-nav-link @ActiveFor("SeuilsAML")" asp-controller="SeuilsAML" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" /></svg><span data-i18n="nav.amlThresholds">Seuils AML</span></a>
-                    <a class="bank-nav-link @ActiveFor("Home", "Settings")" asp-controller="Home" asp-action="Settings"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.7 2.94-.08-.02a1.7 1.7 0 0 0-1.77.58l-.05.07h-3.4l-.04-.08a1.7 1.7 0 0 0-1.52-1.02 1.7 1.7 0 0 0-1.53.95l-.04.08-3.4-.01-.04-.08a1.7 1.7 0 0 0-1.73-.97l-.09.01-1.7-2.95.06-.06A1.7 1.7 0 0 0 3.1 15l-.09-.02v-3.4l.08-.04a1.7 1.7 0 0 0 .98-1.53 1.7 1.7 0 0 0-.97-1.52l-.08-.04 1.7-2.95.09.02a1.7 1.7 0 0 0 1.76-.58l.05-.07h3.4l.04.08a1.7 1.7 0 0 0 1.53 1.02 1.7 1.7 0 0 0 1.52-.95l.04-.08 3.4.01.04.08a1.7 1.7 0 0 0 1.73.97l.09-.01 1.7 2.95-.06.06A1.7 1.7 0 0 0 19.3 12l.09.02V15z" /></svg><span data-i18n="nav.settings">Paramètres</span></a>
                 }
+                <p class="sidebar-section-label">INFORMATIONS</p>
+                <a class="bank-nav-link @ActiveFor("Home", "About")" asp-controller="Home" asp-action="About"><span>À propos de nous</span></a>
+                <a class="bank-nav-link @ActiveFor("Home", "Contact")" asp-controller="Home" asp-action="Contact"><span>Contactez-nous</span></a>
+                <a class="bank-nav-link @ActiveFor("Home", "Settings")" asp-controller="Home" asp-action="Settings"><span data-i18n="nav.settings">Paramètres</span></a>
             </nav>
 
             <div class="sidebar-footer"><span class="sidebar-status-dot"></span><span data-i18n="nav.systemOperational">Système opérationnel</span></div>

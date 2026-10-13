@@ -8,6 +8,7 @@ using AkarangaBank.Web.ViewModels;
 
 namespace AkarangaBank.Web.Controllers;
 
+[Authorize(Roles = "admin,gestionnaire,guichetier,auditeur")]
 public class ClientsController : Controller 
 { 
     private readonly IClientService _clientService; 

@@ -4,16 +4,21 @@ using MySqlConnector; // Namespace pour les exceptions MariaDB/MySQL
 using AkarangaBank.Web.Services;
 using AkarangaBank.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using AkarangaBank.Web.Data;
 
 namespace AkarangaBank.Web.Controllers;
 
 public class AgencesController : Controller 
 { 
     private readonly IAgenceService _agenceService; 
+    private readonly AkarangaBankContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public AgencesController(IAgenceService agenceService) 
+    public AgencesController(IAgenceService agenceService, AkarangaBankContext context, ICurrentUserService currentUser) 
     { 
         _agenceService = agenceService; 
+        _context = context;
+        _currentUser = currentUser;
     } 
 
     // ------------------------------------------------------------- 
@@ -21,6 +26,9 @@ public class AgencesController : Controller
     // ------------------------------------------------------------- 
     public async Task<IActionResult> Index(string? recherche, int page = 1) 
     { 
+        if (!await ClientPeutVoirAgencesAsync())
+            return RedirectToAction("Index", "Home");
+
         const int taille = 10; 
         var vm = await _agenceService.GetPagedAsync(recherche, page, taille); 
         return View(vm); 
@@ -31,6 +39,9 @@ public class AgencesController : Controller
     // ------------------------------------------------------------- 
     public async Task<IActionResult> Details(int id) 
     { 
+        if (!await ClientPeutVoirAgencesAsync())
+            return RedirectToAction("Index", "Home");
+
         var vm = await _agenceService.GetDetailsAsync(id); 
         if (vm is null) return NotFound(); 
 
@@ -170,4 +181,18 @@ public class AgencesController : Controller
             return RedirectToAction(nameof(Index)); 
         } 
     } 
+
+    private async Task<bool> ClientPeutVoirAgencesAsync()
+    {
+        if (!User.IsInRole("client"))
+            return true;
+
+        var userId = await _currentUser.GetUserIdAsync();
+        var clientId = await _context.Users.AsNoTracking()
+            .Where(user => user.Id == userId)
+            .Select(user => user.ClientId)
+            .FirstOrDefaultAsync();
+        return !clientId.HasValue || !await _context.Comptes.AsNoTracking()
+            .AnyAsync(compte => compte.ClientId == clientId.Value && compte.Statut == "Actif");
+    }
 }

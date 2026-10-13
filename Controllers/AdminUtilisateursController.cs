@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering; 
 using AkarangaBank.Web.Services; 
 using AkarangaBank.Web.ViewModels; 
+using AkarangaBank.Web.Data;
+using AkarangaBank.Web.Models;
+using Microsoft.EntityFrameworkCore;
  
 namespace AkarangaBank.Web.Controllers; 
  
@@ -10,13 +13,16 @@ namespace AkarangaBank.Web.Controllers;
 public class AdminUtilisateursController : Controller { 
     private readonly IUtilisateurService _utilisateurService; 
     private readonly IAgenceService _agenceService; 
+    private readonly AkarangaBankContext _context;
  
     public AdminUtilisateursController( 
         IUtilisateurService utilisateurService, 
-        IAgenceService agenceService) 
+        IAgenceService agenceService,
+        AkarangaBankContext context) 
     { 
         _utilisateurService = utilisateurService; 
         _agenceService = agenceService; 
+        _context = context;
     } 
  
     public async Task<IActionResult> Index() 
@@ -30,6 +36,43 @@ public class AdminUtilisateursController : Controller {
         await ChargerAgencesAsync(); 
         return View(new UtilisateurCreateViewModel()); 
     } 
+
+    public async Task<IActionResult> Edit(int id)
+    {
+        var user = await _utilisateurService.GetByIdAsync(id);
+        if (user is null) return NotFound();
+        await ChargerDonneesEditionAsync(user.ClientId, user.Role);
+        return View(new UtilisateurEditViewModel
+        {
+            Id = user.Id,
+            NomComplet = user.NomComplet,
+            Email = user.Email ?? string.Empty,
+            Role = user.Role,
+            ClientId = user.ClientId
+        });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(UtilisateurEditViewModel vm)
+    {
+        if (!ModelState.IsValid)
+        {
+            await ChargerDonneesEditionAsync(vm.ClientId, vm.Role);
+            return View(vm);
+        }
+
+        var (success, error) = await _utilisateurService.UpdateProfileAsync(vm);
+        if (!success)
+        {
+            ModelState.AddModelError(string.Empty, error ?? "Impossible de modifier l'utilisateur.");
+            await ChargerDonneesEditionAsync(vm.ClientId, vm.Role);
+            return View(vm);
+        }
+
+        TempData["Success"] = "Le profil de l'utilisateur a été modifié.";
+        return RedirectToAction(nameof(Index));
+    }
  
     [HttpPost] 
     [ValidateAntiForgeryToken] 
@@ -79,4 +122,13 @@ public class AdminUtilisateursController : Controller {
             "admin", "gestionnaire", "auditeur", "guichetier", "client" 
         }); 
     } 
+
+    private async Task ChargerDonneesEditionAsync(int? clientId, string? role)
+    {
+        ViewBag.Roles = new SelectList(new[] { "admin", "gestionnaire", "auditeur", "guichetier", "client" }, role);
+        ViewBag.Clients = new SelectList(
+            await _context.Clients.AsNoTracking().OrderBy(c => c.Nom).ThenBy(c => c.Prenom)
+                .Select(c => new { c.Id, Libelle = $"{c.NumeroClient} — {c.Nom} {c.Prenom}" }).ToListAsync(),
+            "Id", "Libelle", clientId);
+    }
 } 

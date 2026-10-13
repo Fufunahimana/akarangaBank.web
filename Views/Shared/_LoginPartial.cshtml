@@ -27,7 +27,7 @@
         <div class="bank-user-actions">
             <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn-bank-outline" data-i18n="nav.myAccount">Mon compte</a>
             <form class="bank-logout-form" asp-area="Identity" asp-page="/Account/Logout"
-                  asp-route-returnUrl="@Url.Action("Index", User.IsInRole("admin") ? "Home" : "Clients", new { area = "" })" method="post">
+                  asp-route-returnUrl="@Url.Action("Index", User.IsInRole("admin") || User.IsInRole("client") ? "Home" : "Clients", new { area = "" })" method="post">
                 <button type="submit" class="btn-bank-danger" data-i18n="nav.logout">Déconnexion</button>
             </form>
         </div>

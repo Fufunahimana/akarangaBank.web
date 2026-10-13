@@ -30,7 +30,10 @@ public class CartesController : Controller
         if (User.IsInRole("client"))
         {
             var clientId = await GetClientIdAsync();
-            query = clientId.HasValue ? query.Where(c => c.ClientId == clientId.Value) : query.Where(c => false);
+            if (!clientId.HasValue || !await _context.Comptes.AsNoTracking()
+                    .AnyAsync(c => c.ClientId == clientId.Value && c.Statut == "Actif"))
+                return RedirectToAction("Index", "Home");
+            query = query.Where(c => c.ClientId == clientId.Value && c.Compte.Statut == "Actif");
         }
         else if (!User.IsInRole("admin") && !User.IsInRole("gestionnaire") && !User.IsInRole("guichetier") && !User.IsInRole("auditeur"))
         {
@@ -158,7 +161,8 @@ public class CartesController : Controller
         if (User.IsInRole("auditeur")) return !operationFinanciere;
         if (!User.IsInRole("client")) return false;
         var clientId = await GetClientIdAsync();
-        return clientId == carte.ClientId;
+        return clientId == carte.ClientId && await _context.Comptes.AsNoTracking()
+            .AnyAsync(c => c.Id == carte.CompteId && c.ClientId == clientId.Value && c.Statut == "Actif");
     }
 
     private async Task<int?> GetClientIdAsync()

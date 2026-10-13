@@ -2,7 +2,7 @@
 @model RegisterModel
 
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Créer un compte";
 }
 
 <partial name="_AuthStyles" />
@@ -11,7 +11,7 @@
     <header class="identity-auth-heading">
         <span class="identity-auth-eyebrow">AkarangaBank · Espace sécurisé</span>
         <h1>@ViewData["Title"]</h1>
-        <p>Create your secure banking profile.</p>
+        <p>Créez votre accès sécurisé à l’espace AkarangaBank.</p>
     </header>
 
     <div class="identity-auth-grid">
@@ -19,8 +19,8 @@
             <div class="identity-auth-card-heading">
                 <span class="identity-auth-icon" aria-hidden="true">AK</span>
                 <div>
-                    <h2 id="local-register-title">Create a new account.</h2>
-                    <p>Enter your email and choose a strong password.</p>
+                    <h2 id="local-register-title">Créer mon accès</h2>
+                    <p>Vos identifiants vous permettront de consulter vos services en ligne.</p>
                 </div>
             </div>
 
@@ -28,25 +28,31 @@
                 <div asp-validation-summary="ModelOnly" class="identity-auth-validation" role="alert"></div>
 
                 <div class="form-floating">
+                    <input asp-for="Input.NomComplet" class="form-control" autocomplete="name" aria-required="true" placeholder="Nom complet" />
+                    <label asp-for="Input.NomComplet">Nom complet</label>
+                    <span asp-validation-for="Input.NomComplet" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating">
                     <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.Email">Email</label>
+                    <label asp-for="Input.Email">Adresse e-mail</label>
                     <span asp-validation-for="Input.Email" class="text-danger"></span>
                 </div>
 
                 <div class="form-floating">
                     <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Password" />
-                    <label asp-for="Input.Password">Password</label>
+                    <label asp-for="Input.Password">Mot de passe</label>
                     <span asp-validation-for="Input.Password" class="text-danger"></span>
                 </div>
 
                 <div class="form-floating">
                     <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Confirm password" />
-                    <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                    <label asp-for="Input.ConfirmPassword">Confirmer le mot de passe</label>
                     <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                 </div>
 
                 <button id="registerSubmit" type="submit" class="identity-auth-submit">
-                    <span>Register</span>
+                    <span>Créer mon compte</span>
                     <span aria-hidden="true">→</span>
                 </button>
 

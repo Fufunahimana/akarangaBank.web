@@ -151,6 +151,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5VdGlsaXNhdGV1cnNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/csharptest/akarangaBank/akar/akarangaBank.web/Views/AdminUtilisateurs/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5VdGlsaXNhdGV1cnNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/csharptest/akarangaBank/akar/akarangaBank.web/Views/AdminUtilisateurs/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5VdGlsaXNhdGV1cnNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -237,6 +241,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/csharptest/akarangaBank/akar/akarangaBank.web/Views/Conformite/RisqueClient.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ29uZm9ybWl0ZVxSaXNxdWVDbGllbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/csharptest/akarangaBank/akar/akarangaBank.web/Views/Home/About.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/csharptest/akarangaBank/akar/akarangaBank.web/Views/Home/Client.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDbGllbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/csharptest/akarangaBank/akar/akarangaBank.web/Views/Home/Contact.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDb250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/csharptest/akarangaBank/akar/akarangaBank.web/Views/Home/Index.cshtml]

@@ -71,6 +71,11 @@ namespace AkarangaBank.Web.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
+            [Required]
+            [StringLength(100)]
+            [Display(Name = "Nom complet")]
+            public string NomComplet { get; set; } = string.Empty;
+
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -114,6 +119,9 @@ namespace AkarangaBank.Web.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+                user.NomComplet = Input.NomComplet.Trim();
+                user.Role = "client";
+                user.EstActif = true;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -121,6 +129,15 @@ namespace AkarangaBank.Web.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    var roleResult = await _userManager.AddToRoleAsync(user, "client");
+                    if (!roleResult.Succeeded)
+                    {
+                        await _userManager.DeleteAsync(user);
+                        foreach (var error in roleResult.Errors)
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        return Page();
+                    }
+
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);

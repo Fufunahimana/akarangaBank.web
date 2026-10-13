@@ -7,8 +7,8 @@ public interface ICompteService
 { 
     Task<CompteListViewModel> GetPagedAsync( 
         string? recherche, int? agenceId, int? typeCompteId, string? 
-statut, int page, int taille); 
-    Task<CompteDetailsViewModel?> GetDetailsAsync(int id); 
+statut, int page, int taille, int? clientId = null); 
+    Task<CompteDetailsViewModel?> GetDetailsAsync(int id, int? clientId = null); 
     Task<Compte?> GetByIdAsync(int id); 
     Task<Compte> CreateAsync(CompteCreateViewModel vm); 
     Task<bool> UpdateAsync(CompteEditViewModel vm); 

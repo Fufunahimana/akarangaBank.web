@@ -85,8 +85,15 @@ namespace AkarangaBank.Web.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
+            // A signed-in user should always return to the application, even when
+            // opening the login URL directly or following an old bookmark.
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return Redirect("~/");
+            }
+
             if (!string.IsNullOrEmpty(ErrorMessage))
             {
                 ModelState.AddModelError(string.Empty, ErrorMessage);
@@ -100,10 +107,18 @@ namespace AkarangaBank.Web.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl;
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            // Do not allow the login form to be shown or submitted while a session
+            // is active. The root route sends each role to its own landing page.
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return Redirect("~/");
+            }
+
             returnUrl ??= Url.Content("~/");
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();

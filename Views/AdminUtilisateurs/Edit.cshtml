@@ -1,0 +1,43 @@
+@model AkarangaBank.Web.ViewModels.UtilisateurEditViewModel
+@{
+    ViewData["Title"] = "Modifier un utilisateur";
+}
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Modifier un utilisateur</h1><p>Mettre à jour le nom complet, l’adresse e-mail, le rôle et le dossier client associé.</p></div></header>
+    <div class="bank-page-body">
+        <form asp-action="Edit" method="post" class="bank-form">
+            <input asp-for="Id" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="bank-validation" role="alert"></div>
+            <div class="bank-form-group">
+                <label asp-for="NomComplet" class="bank-label"></label>
+                <input asp-for="NomComplet" class="bank-control" />
+                <span asp-validation-for="NomComplet" class="text-danger"></span>
+            </div>
+            <div class="bank-form-group">
+                <label asp-for="Email" class="bank-label"></label>
+                <input asp-for="Email" class="bank-control" type="email" autocomplete="email" />
+                <small>Cette adresse servira aussi d’identifiant lors de la prochaine connexion.</small>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="bank-form-group">
+                <label asp-for="Role" class="bank-label"></label>
+                <select asp-for="Role" asp-items="ViewBag.Roles" class="bank-control"></select>
+                <span asp-validation-for="Role" class="text-danger"></span>
+            </div>
+            <div class="bank-form-group">
+                <label asp-for="ClientId" class="bank-label"></label>
+                <select asp-for="ClientId" asp-items="ViewBag.Clients" class="bank-control">
+                    <option value="">Aucun dossier client lié</option>
+                </select>
+                <small>Ce lien s’applique uniquement au rôle client. Il détermine les comptes et opérations visibles dans son espace.</small>
+                <span asp-validation-for="ClientId" class="text-danger"></span>
+            </div>
+            <div class="bank-actions">
+                <button type="submit" class="bank-btn bank-btn-primary">Enregistrer</button>
+                <a asp-action="Index" class="bank-btn bank-btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</section>

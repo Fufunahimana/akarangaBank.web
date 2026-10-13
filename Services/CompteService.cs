@@ -13,13 +13,16 @@ public class CompteService : ICompteService {
     } 
  
     public async Task<CompteListViewModel> GetPagedAsync( 
-        string? recherche, int? agenceId, int? typeCompteId, string? statut, int page, int taille) { 
+        string? recherche, int? agenceId, int? typeCompteId, string? statut, int page, int taille, int? clientId = null) { 
         var query = _context.Comptes 
             .AsNoTracking() 
             .Include(c => c.Client) 
             .Include(c => c.TypeCompte) 
             .Include(c => c.Agence) 
             .AsQueryable(); 
+
+        if (clientId.HasValue)
+            query = query.Where(c => c.ClientId == clientId.Value);
  
         if (!string.IsNullOrWhiteSpace(recherche)) { 
             var r = recherche.Trim(); 
@@ -71,13 +74,13 @@ public class CompteService : ICompteService {
         }; 
     } 
  
-    public async Task<CompteDetailsViewModel?> GetDetailsAsync(int id){ 
+    public async Task<CompteDetailsViewModel?> GetDetailsAsync(int id, int? clientId = null){ 
         var compte = await _context.Comptes 
             .AsNoTracking() 
             .Include(c => c.Client) 
             .Include(c => c.TypeCompte) 
             .Include(c => c.Agence) 
-            .FirstOrDefaultAsync(c => c.Id == id); 
+            .FirstOrDefaultAsync(c => c.Id == id && (!clientId.HasValue || c.ClientId == clientId.Value)); 
  
         if (compte is null) return null; 
  

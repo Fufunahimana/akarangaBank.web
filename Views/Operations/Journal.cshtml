@@ -43,7 +43,7 @@
         </form>
         <div class="bank-table-wrap">
                     <table class="bank-table">
-                <thead><tr><th>Date</th><th>Référence</th><th>Type</th><th>Compte</th><th style="text-align:right">Montant</th><th>Statut</th><th>Détails</th><th></th></tr></thead>
+                <thead><tr><th>Date</th><th>Référence</th><th>Type</th>@if (!User.IsInRole("client")) { <th>Compte</th> }<th style="text-align:right">Montant</th><th>Statut</th><th>Détails</th><th></th></tr></thead>
                 <tbody>
                 @if (Model.Operations.Any())
                 {
@@ -53,10 +53,10 @@
                             <td>@BankTime.ToLocal(op.DateOperation).ToString("dd/MM/yyyy HH:mm")</td>
                             <td><strong>@op.Reference</strong></td>
                             <td>@(op.TypeOperation == "Depot" ? "Dépôt" : op.TypeOperation)</td>
-                            <td>@op.Compte.NumeroCompte</td>
+                            @if (!User.IsInRole("client")) { <td>@op.Compte.NumeroCompte</td> }
                             <td style="text-align:right">@op.Montant.ToString("N2") @op.Devise</td>
                             <td><span class="bank-badge @(op.Statut == "Valide" ? "bank-badge-success" : op.Statut == "EnAttente" ? "bank-badge-warning" : "bank-badge-info")">@op.Statut</span></td>
-                            <td>@if (User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier")) { <a asp-action="Details" asp-route-id="@op.Id" class="bank-btn bank-btn-secondary">Écritures (@op.Ecritures.Count)</a> }</td><td><a asp-action="Releve" asp-route-id="@op.CompteId" class="bank-btn bank-btn-secondary">Relevé</a></td>
+                            <td>@if (User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier")) { <a asp-action="Details" asp-route-id="@op.Id" class="bank-btn bank-btn-secondary">Écritures (@op.Ecritures.Count)</a> }</td><td>@if (!User.IsInRole("client")) { <a asp-action="Releve" asp-route-id="@op.CompteId" class="bank-btn bank-btn-secondary">Relevé</a> }</td>
                         </tr>
                     }
                 }

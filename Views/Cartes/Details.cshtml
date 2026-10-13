@@ -21,9 +21,24 @@
             <h2 class="bank-section-title">Effectuer une transaction carte</h2>
             <form asp-action="Transaction" method="post" class="bank-filter">
                 <input type="hidden" name="CarteId" value="@carte.Id" />
-                <div class="bank-form-group"><label for="TypeTransaction" class="bank-label">Type de transaction</label><select id="TypeTransaction" name="TypeTransaction" class="bank-control"><option value="Paiement">Paiement</option><option value="Retrait">Retrait</option><option value="PaiementEnLigne">Paiement en ligne</option></select></div>
+                <div class="bank-form-group">
+                    <label for="TypeTransaction" class="bank-label">Type d’opération</label>
+                    <select id="TypeTransaction" name="TypeTransaction" class="bank-control">
+                        @if (User.IsInRole("client"))
+                        {
+                            <option value="Retrait">Retrait par carte</option>
+                            <option value="Versement">Versement sur mon compte par carte</option>
+                        }
+                        else
+                        {
+                            <option value="Paiement">Paiement</option>
+                            <option value="Retrait">Retrait</option>
+                            <option value="PaiementEnLigne">Paiement en ligne</option>
+                        }
+                    </select>
+                </div>
                 <div class="bank-form-group"><label for="Montant" class="bank-label">Montant (BIF)</label><input id="Montant" name="Montant" type="number" min="0.01" step="0.01" class="bank-control" required /></div>
-                <button type="submit" class="bank-btn bank-btn-primary">Autoriser le paiement</button>
+                <button type="submit" class="bank-btn bank-btn-primary">@(User.IsInRole("client") ? "Confirmer l’opération par carte" : "Autoriser le paiement")</button>
             </form>
         }
 

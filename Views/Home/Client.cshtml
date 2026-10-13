@@ -1,0 +1,104 @@
+@model AkarangaBank.Web.ViewModels.EspaceClientViewModel
+@{
+    ViewData["Title"] = "Mon espace";
+}
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div>
+            <h1>Bienvenue chez AkarangaBank@(string.IsNullOrWhiteSpace(Model.NomComplet) ? "" : $", {Model.NomComplet}")</h1>
+            <p>@(Model.Comptes.Count == 0 ? "Votre espace client et les agences disponibles." : "Consultez votre compte et son historique.")</p>
+        </div>
+    </header>
+
+    <div class="bank-page-body">
+        @if (Model.Comptes.Count == 0)
+        {
+            <section class="dashboard-panel">
+                <h2>Votre inscription est en attente de confirmation</h2>
+                <p>Un administrateur doit confirmer votre inscription et vous affecter à votre dossier bancaire. En attendant, choisissez l’agence AkarangaBank la plus proche pour finaliser votre demande d’ouverture de compte.</p>
+                @if (Model.Client?.Agence is not null)
+                {
+                    <p><strong>Votre agence de rattachement :</strong> @Model.Client.Agence.Nom, @Model.Client.Agence.Ville (@Model.Client.Agence.Code)</p>
+                }
+                <h3>Agences disponibles</h3>
+                <div class="bank-table-wrap">
+                    <table class="bank-table">
+                        <thead><tr><th>Code</th><th>Agence</th><th>Ville</th><th>Type</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach (var agence in Model.Agences)
+                        {
+                            <tr>
+                                <td><strong>@agence.Code</strong></td>
+                                <td>@agence.Nom</td>
+                                <td>@agence.Ville</td>
+                                <td>@(agence.EstSiege ? "Siège" : "Agence")</td>
+                                <td><a asp-controller="Agences" asp-action="Details" asp-route-id="@agence.Id" class="bank-btn bank-btn-secondary">Détails</a></td>
+                            </tr>
+                        }
+                        @if (Model.Agences.Count == 0)
+                        {
+                            <tr><td colspan="5" class="bank-empty">Aucune agence disponible pour le moment.</td></tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+        else
+        {
+            <section class="dashboard-panel">
+                <div class="panel-heading"><div><p class="panel-kicker">MES COMPTES</p><h2>Vos comptes bancaires</h2></div></div>
+                <div class="bank-table-wrap">
+                    <table class="bank-table">
+                        <thead><tr><th>Numéro</th><th>Type</th><th>Agence</th><th>Solde</th><th>Statut</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach (var compte in Model.Comptes)
+                        {
+                            <tr>
+                                <td><strong>@compte.NumeroCompte</strong></td>
+                                <td>@compte.TypeCompte.Libelle</td>
+                                <td>@compte.Agence.Nom, @compte.Agence.Ville</td>
+                                <td>@compte.Solde.ToString("N2") @compte.Devise</td>
+                                <td>@compte.Statut</td>
+                                <td><a asp-controller="Comptes" asp-action="Details" asp-route-id="@compte.Id" class="bank-btn bank-btn-secondary">Détails</a></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="dashboard-panel" style="margin-top: 1.5rem">
+                <div class="panel-heading"><div><p class="panel-kicker">ACTIVITÉ</p><h2>Dernières opérations sur vos comptes</h2></div></div>
+                @if (Model.ActiviteRecente.Count == 0)
+                {
+                    <p>Aucune opération n’est encore enregistrée sur vos comptes.</p>
+                }
+                else
+                {
+                    <div class="bank-table-wrap">
+                        <table class="bank-table">
+                        <thead><tr><th>Date</th><th>Compte</th><th>Opération</th><th style="text-align:right">Montant</th><th>Sens</th></tr></thead>
+                            <tbody>
+                            @foreach (var ecriture in Model.ActiviteRecente)
+                            {
+                                <tr>
+                                    <td>@BankTime.ToLocal(ecriture.DateEcriture).ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@ecriture.Compte?.NumeroCompte</td>
+                                    <td>@ecriture.Operation.TypeOperation</td>
+                                    <td style="text-align:right">@ecriture.Montant.ToString("N2") @ecriture.Devise</td>
+                                    <td>@(ecriture.Sens == "Credit" ? "Crédit" : "Débit")</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                <a asp-controller="Operations" asp-action="Journal" class="bank-btn bank-btn-secondary">Voir tout mon journal</a>
+                <a asp-controller="Cartes" asp-action="Index" class="bank-btn bank-btn-primary">Retrait ou versement par carte</a>
+            </section>
+        }
+    </div>
+</section>

@@ -155,7 +155,7 @@ if (!app.Environment.IsDevelopment())
 app.MapGet("/", async context =>
 {
     context.Response.Redirect(context.User.Identity?.IsAuthenticated == true
-        ? (context.User.IsInRole("admin") ? "/Home/Index" : "/Clients/Index")
+        ? (context.User.IsInRole("admin") || context.User.IsInRole("client") ? "/Home/Index" : "/Clients/Index")
         : "/Identity/Account/Login");
     await Task.CompletedTask;
 });

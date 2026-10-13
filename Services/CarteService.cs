@@ -9,7 +9,7 @@ namespace AkarangaBank.Web.Services;
 public class CarteService : ICarteService
 {
     private static readonly HashSet<string> TypesCarte = new(StringComparer.OrdinalIgnoreCase) { "Visa", "MasterCard", "Locale" };
-    private static readonly HashSet<string> TypesTransaction = new(StringComparer.OrdinalIgnoreCase) { "Retrait", "Paiement", "PaiementEnLigne" };
+    private static readonly HashSet<string> TypesTransaction = new(StringComparer.OrdinalIgnoreCase) { "Versement", "Retrait", "Paiement", "PaiementEnLigne" };
     private static readonly HashSet<string> MotifsBlocage = new(StringComparer.OrdinalIgnoreCase) { "Perte", "Vol", "Fraude", "Autre" };
 
     private readonly AkarangaBankContext _context;
@@ -145,7 +145,7 @@ public class CarteService : ICarteService
             motifRefus = "Carte expirée.";
         else if (motifRefus is null && carte.Compte.Statut != "Actif")
             motifRefus = "Le compte associé est inactif.";
-        else if (motifRefus is null && carte.Compte.Solde < montant)
+        else if (motifRefus is null && type != "Versement" && carte.Compte.Solde < montant)
             motifRefus = "Solde insuffisant.";
 
         if (motifRefus is null)
@@ -157,7 +157,7 @@ public class CarteService : ICarteService
                 if (utilise + montant > carte.PlafondRetraitJournalier)
                     motifRefus = $"Plafond journalier de retrait dépassé ({carte.PlafondRetraitJournalier:N2} BIF).";
             }
-            else
+            else if (type is "Paiement" or "PaiementEnLigne")
             {
                 var utiliseEnLigne = type == "PaiementEnLigne"
                     ? await GetUtilisationJournaliereAsync(carte.Id, debutJournee, finJournee, "PaiementEnLigne")
@@ -176,7 +176,12 @@ public class CarteService : ICarteService
         ResultatConformite? analyseAML = null;
         if (motifRefus is null && _conformite is not null)
         {
-            var typeAML = type == "Retrait" ? "Retrait" : "PaiementCarte";
+            var typeAML = type switch
+            {
+                "Retrait" => "Retrait",
+                "Versement" => "Depot",
+                _ => "PaiementCarte"
+            };
             analyseAML = await _conformite.AnalyserTransactionAsync(carte.CompteId, montant, typeAML);
             if (analyseAML.EstBloquee)
                 motifRefus = analyseAML.Motif ?? "Transaction bloquée par le contrôle AML.";
@@ -205,7 +210,7 @@ public class CarteService : ICarteService
             var operation = new Operation
             {
                 Reference = $"CB-{nowLocal:yyyyMMdd}-{RandomNumberGenerator.GetHexString(6)}",
-                TypeOperation = $"Carte{type}",
+                TypeOperation = type == "Versement" ? "Depot" : type == "Retrait" ? "Retrait" : $"Carte{type}",
                 CompteId = carte.CompteId,
                 UtilisateurId = utilisateurId,
                 AgenceId = carte.Compte.AgenceId,
@@ -214,7 +219,7 @@ public class CarteService : ICarteService
                 Statut = "Valide",
                 DateOperation = now,
                 DateValidation = now,
-                Commentaire = $"Transaction carte {carte.NumeroCarteMasque} ({type})"
+                Commentaire = $"Opération par carte {carte.NumeroCarteMasque} ({type})"
             };
             var transactionCarte = new TransactionCarte
             {
@@ -226,27 +231,28 @@ public class CarteService : ICarteService
                 DateTransaction = now,
                 Operation = operation
             };
+            var estVersement = type == "Versement";
             operation.Ecritures.Add(new Ecriture
             {
                 CompteId = carte.CompteId,
                 CodeCompteGeneral = $"CLIENT:{carte.Compte.NumeroCompte}",
-                Sens = "Debit",
+                Sens = estVersement ? "Credit" : "Debit",
                 Montant = montant,
                 Devise = carte.Compte.Devise,
                 DateEcriture = now,
-                Libelle = $"Transaction carte {carte.NumeroCarteMasque}"
+                Libelle = $"{(estVersement ? "Versement" : "Transaction carte")} {carte.NumeroCarteMasque}"
             });
             operation.Ecritures.Add(new Ecriture
             {
                 CodeCompteGeneral = $"COMPENSATION_CARTES:{carte.Compte.AgenceId}",
-                Sens = "Credit",
+                Sens = estVersement ? "Debit" : "Credit",
                 Montant = montant,
                 Devise = carte.Compte.Devise,
                 DateEcriture = now,
-                Libelle = $"Contrepartie transaction carte {carte.NumeroCarteMasque}"
+                Libelle = $"Contrepartie opération carte {carte.NumeroCarteMasque}"
             });
 
-            carte.Compte.Solde -= montant;
+            carte.Compte.Solde += estVersement ? montant : -montant;
             carte.Compte.DateModification = now;
             _context.Operations.Add(operation);
             _context.TransactionsCarte.Add(transactionCarte);
@@ -318,6 +324,7 @@ public class CarteService : ICarteService
 
     private static string? CanonicaliserTypeTransaction(string? type) => type?.Trim().ToUpperInvariant() switch
     {
+        "VERSEMENT" => "Versement",
         "RETRAIT" => "Retrait",
         "PAIEMENT" => "Paiement",
         "PAIEMENTENLIGNE" or "PAIEMENT EN LIGNE" => "PaiementEnLigne",

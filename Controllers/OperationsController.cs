@@ -158,7 +158,24 @@ public class OperationsController : Controller
     [HttpGet]
     public async Task<IActionResult> Journal(DateTime? du, DateTime? au, string? typeOperation, int page = 1)
     {
-        var vm = await _comptabilite.GetJournalAsync(du, au, typeOperation, page, 20);
+        var scopeToClient = User.IsInRole("client");
+        int? clientId = null;
+        if (scopeToClient)
+        {
+            var userId = await _currentUser.GetUserIdAsync();
+            clientId = await _context.Users.Where(u => u.Id == userId)
+                .Select(u => u.ClientId).FirstOrDefaultAsync();
+            if (!clientId.HasValue || !await _context.Comptes.AsNoTracking()
+                    .AnyAsync(c => c.ClientId == clientId.Value && c.Statut == "Actif"))
+                return RedirectToAction("Index", "Home");
+        }
+        else if (!User.IsInRole("admin") && !User.IsInRole("gestionnaire")
+            && !User.IsInRole("guichetier") && !User.IsInRole("auditeur"))
+        {
+            return Forbid();
+        }
+
+        var vm = await _comptabilite.GetJournalAsync(du, au, typeOperation, page, 20, clientId, scopeToClient);
         return View(vm);
     }
 
@@ -212,6 +229,22 @@ public class OperationsController : Controller
     [HttpGet]
     public async Task<IActionResult> Releve(int id)
     {
+        if (User.IsInRole("client"))
+        {
+            var userId = await _currentUser.GetUserIdAsync();
+            var clientId = await _context.Users.Where(u => u.Id == userId)
+                .Select(u => u.ClientId).FirstOrDefaultAsync();
+            if (!clientId.HasValue || !await _context.Comptes.AnyAsync(c => c.ClientId == clientId.Value && c.Statut == "Actif"))
+                return RedirectToAction("Index", "Home");
+            if (!await _context.Comptes.AnyAsync(c => c.Id == id && c.ClientId == clientId.Value && c.Statut == "Actif"))
+                return Forbid();
+        }
+        else if (!User.IsInRole("admin") && !User.IsInRole("gestionnaire")
+            && !User.IsInRole("guichetier") && !User.IsInRole("auditeur"))
+        {
+            return Forbid();
+        }
+
         var vm = await _comptabilite.GetReleveAsync(id);
         return vm is null ? NotFound() : View(vm);
     }

@@ -182,7 +182,7 @@
             <h2>AkarangaBank</h2>
             <p>Liste des Agences</p>
         </div>
-        @if (!User.IsInRole("auditeur"))
+        @if (User.IsInRole("admin"))
         {
             <a href="/Agences/Create" class="btn-add-item">+ Nouvelle agence</a>
         }
@@ -228,7 +228,7 @@
                         </td>
                         <td style="text-align: right;">
                             <a asp-action="Details" asp-route-id="@agence.Id" class="action-link">Détails</a>
-                            @if (!User.IsInRole("auditeur"))
+                            @if (User.IsInRole("admin"))
                             {
                                 <a asp-action="Edit" asp-route-id="@agence.Id" class="action-link" style="color: #ffc107;">Modifier</a>
                                 <a asp-action="Delete" asp-route-id="@agence.Id" class="action-link action-link-danger">Supprimer</a>

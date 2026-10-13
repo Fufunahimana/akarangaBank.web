@@ -395,7 +395,7 @@ public class ComptabiliteService : IComptabiliteService
     }
 
     public async Task<JournalViewModel> GetJournalAsync(
-        DateTime? du, DateTime? au, string? typeOperation, int page, int taille)
+        DateTime? du, DateTime? au, string? typeOperation, int page, int taille, int? clientId = null, bool scopeToClient = false)
     {
         page = Math.Max(page, 1);
         taille = Math.Clamp(taille, 1, 100);
@@ -404,6 +404,14 @@ public class ComptabiliteService : IComptabiliteService
             .Include(o => o.Ecritures)
             .Include(o => o.Utilisateur)
             .AsQueryable();
+
+        if (scopeToClient)
+        {
+            query = clientId.HasValue
+                ? query.Where(o => o.Compte.ClientId == clientId.Value
+                    || o.Ecritures.Any(e => e.CompteId.HasValue && e.Compte!.ClientId == clientId.Value))
+                : query.Where(_ => false);
+        }
 
         if (du.HasValue)
         {

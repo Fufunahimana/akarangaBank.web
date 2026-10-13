@@ -26,19 +26,14 @@ public class PretsController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
+        if (User.IsInRole("client"))
+            return Forbid();
+
         var query = _context.Prets.AsNoTracking()
             .Include(p => p.Client)
             .Include(p => p.TypePret)
             .Include(p => p.CompteDebit)
             .OrderByDescending(p => p.DateDemande);
-        if (User.IsInRole("client"))
-        {
-            var userId = await _currentUser.GetUserIdAsync();
-            var clientId = await _context.Users.Where(u => u.Id == userId)
-                .Select(u => u.ClientId).FirstOrDefaultAsync();
-            if (!clientId.HasValue) return View(new List<Pret>());
-            return View(await query.Where(p => p.ClientId == clientId.Value).ToListAsync());
-        }
         if (!User.IsInRole("admin") && !User.IsInRole("gestionnaire") && !User.IsInRole("guichetier") && !User.IsInRole("auditeur"))
             return Forbid();
         return View(await query.ToListAsync());
@@ -189,10 +184,11 @@ public class PretsController : Controller
         var comptes = await _context.Comptes.AsNoTracking().Include(c => c.Client)
             .Where(c => c.Statut == "Actif")
             .OrderBy(c => c.NumeroCompte)
-            .Select(c => new { c.Id, Libelle = c.NumeroCompte + " — " + c.Client.Nom + " " + c.Client.Prenom }).ToListAsync();
+            .Select(c => new PretCompteOptionViewModel { Id = c.Id, ClientId = c.ClientId, Libelle = c.NumeroCompte + " — " + c.Client.Nom + " " + c.Client.Prenom }).ToListAsync();
         var types = await _context.TypesPret.AsNoTracking().Where(t => t.Actif).OrderBy(t => t.Libelle).ToListAsync();
         ViewBag.Clients = new SelectList(clients, "Id", "Libelle", vm?.ClientId);
-        ViewBag.Comptes = new SelectList(comptes, "Id", "Libelle", vm?.CompteDebitId);
+        ViewBag.Comptes = comptes;
+        ViewBag.CompteSelectionneId = vm?.CompteDebitId;
         ViewBag.TypesPret = new SelectList(types, "Id", "Libelle", vm?.TypePretId);
     }
 }

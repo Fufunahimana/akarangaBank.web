@@ -1,20 +1,70 @@
 using AkarangaBank.Web.Data;
 using AkarangaBank.Web.Models;
+using AkarangaBank.Web.Services;
+using AkarangaBank.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AkarangaBank.Web.Controllers;
 
-[Authorize(Policy = "AdminOnly")]
+[Authorize]
 public class HomeController : Controller
 {
     private readonly AkarangaBankContext _context;
+    private readonly ICurrentUserService _currentUser;
 
-    public HomeController(AkarangaBankContext context) => _context = context;
+    public HomeController(AkarangaBankContext context, ICurrentUserService currentUser)
+    {
+        _context = context;
+        _currentUser = currentUser;
+    }
 
     public async Task<IActionResult> Index()
     {
+        if (User.IsInRole("client"))
+        {
+            var userId = await _currentUser.GetUserIdAsync();
+            var user = await _context.Users.AsNoTracking()
+                .Include(u => u.Client)
+                    .ThenInclude(c => c!.Agence)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+            var clientId = user?.ClientId;
+            var comptes = clientId.HasValue
+                ? await _context.Comptes.AsNoTracking()
+                    .Include(c => c.TypeCompte)
+                    .Include(c => c.Agence)
+                    .Where(c => c.ClientId == clientId.Value && c.Statut == "Actif")
+                    .OrderBy(c => c.NumeroCompte)
+                    .ToListAsync()
+                : new List<Compte>();
+            var compteIds = comptes.Select(c => c.Id).ToArray();
+            var activite = compteIds.Length == 0
+                ? new List<Ecriture>()
+                : await _context.Ecritures.AsNoTracking()
+                    .Include(e => e.Operation)
+                    .Include(e => e.Compte)
+                    .Where(e => e.CompteId.HasValue && compteIds.Contains(e.CompteId.Value))
+                    .OrderByDescending(e => e.DateEcriture)
+                    .Take(12)
+                    .ToListAsync();
+            var agences = await _context.Agences.AsNoTracking()
+                .OrderBy(a => a.Ville).ThenBy(a => a.Nom)
+                .ToListAsync();
+
+            return View("Client", new EspaceClientViewModel
+            {
+                NomComplet = user?.NomComplet ?? string.Empty,
+                Client = user?.Client,
+                Comptes = comptes,
+                ActiviteRecente = activite,
+                Agences = agences
+            });
+        }
+
+        if (!User.IsInRole("admin"))
+            return RedirectToAction("Index", "Clients");
+
         var soldes = await _context.Comptes.AsNoTracking()
             .Where(c => !c.NumeroCompte.StartsWith("9000"))
             .GroupBy(c => c.Devise)
@@ -42,6 +92,16 @@ public class HomeController : Controller
     }
 
     public IActionResult Settings() => View();
+
+    public IActionResult About() => View();
+
+    public async Task<IActionResult> Contact()
+    {
+        var agences = await _context.Agences.AsNoTracking()
+            .OrderBy(a => a.Ville).ThenBy(a => a.Nom)
+            .ToListAsync();
+        return View(agences);
+    }
 }
 
 public sealed record DepotParDevise(string Devise, decimal Montant);

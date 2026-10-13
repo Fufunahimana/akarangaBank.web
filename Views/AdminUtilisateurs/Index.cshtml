@@ -88,6 +88,18 @@
         text-decoration: none;
         display: inline-block;
         transition: all 0.2s;
+        white-space: nowrap;
+    }
+    .user-action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .user-action-form {
+        display: inline;
+        margin: 0;
     }
     .btn-outline-danger {
         color: #dc3545;
@@ -105,6 +117,15 @@
     }
     .btn-outline-success:hover {
         background-color: #198754;
+        color: white;
+    }
+    .btn-outline-primary {
+        color: #0d6efd;
+        border-color: #0d6efd;
+        background: transparent;
+    }
+    .btn-outline-primary:hover {
+        background-color: #0d6efd;
         color: white;
     }
 </style>
@@ -167,12 +188,15 @@
                                         @(u.EstActif ? "Oui" : "Non")
                                     </span>
                                 </td>
-                                <td style="text-align: right;">
-                                    <form asp-action="ToggleActif" asp-route-id="@u.Id" method="post" style="display:inline;">
+                                <td>
+                                    <div class="user-action-buttons">
+                                    <a asp-action="Edit" asp-route-id="@u.Id" class="btn-action btn-outline-primary">Modifier</a>
+                                    <form asp-action="ToggleActif" asp-route-id="@u.Id" method="post" class="user-action-form">
                                         <button type="submit" class="btn-action @(u.EstActif ? "btn-outline-danger" : "btn-outline-success")">
                                             @(u.EstActif ? "Désactiver" : "Activer")
                                         </button>
                                     </form>
+                                    </div>
                                 </td>
                             </tr>
                         }

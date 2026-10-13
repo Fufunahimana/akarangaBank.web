@@ -1,0 +1,30 @@
+@model IReadOnlyList<AkarangaBank.Web.Models.Agence>
+@{
+    ViewData["Title"] = "Contactez-nous";
+}
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header"><div><h1>Contactez-nous</h1><p>Nos agences sont à votre disposition pour répondre à vos questions et vous accompagner.</p></div></header>
+    <div class="bank-page-body">
+        @if (Model.Count == 0)
+        {
+            <p>La liste des agences n’est pas disponible pour le moment.</p>
+        }
+        else
+        {
+            <div class="bank-table-wrap">
+                <table class="bank-table">
+                    <thead><tr><th>Agence</th><th>Ville</th><th>Code</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var agence in Model)
+                    {
+                        <tr><td>@agence.Nom</td><td>@agence.Ville</td><td>@agence.Code</td><td><a asp-controller="Agences" asp-action="Details" asp-route-id="@agence.Id" class="bank-btn bank-btn-secondary">Informations</a></td></tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+        <p style="margin-top:1rem">Choisissez l’agence la plus proche de vous ou visitez-la pour être mis en relation avec un conseiller.</p>
+    </div>
+</section>

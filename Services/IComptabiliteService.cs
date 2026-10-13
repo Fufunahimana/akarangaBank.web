@@ -11,7 +11,7 @@ public interface IComptabiliteService
     Task<IEnumerable<Operation>> GetOperationsAmlEnAttenteAsync();
     Task<bool> ValiderOperationAmlAsync(int operationId, int valideParId);
     Task<bool> RejeterOperationAmlAsync(int operationId, int valideParId, string motif);
-    Task<JournalViewModel> GetJournalAsync(DateTime? du, DateTime? au, string? typeOperation, int page, int taille);
+    Task<JournalViewModel> GetJournalAsync(DateTime? du, DateTime? au, string? typeOperation, int page, int taille, int? clientId = null, bool scopeToClient = false);
     Task<ReleveViewModel?> GetReleveAsync(int compteId);
     Task<decimal> GetSoldeAsync(int compteId);
     Task<bool> VerifierEquilibreGlobalAsync();

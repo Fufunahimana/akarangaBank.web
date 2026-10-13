@@ -117,7 +117,7 @@
         </div>
         @if (!User.IsInRole("auditeur"))
         {
-            <a href="/Clients/Create" class="btn-add-item">+ Nouveau client</a>
+            <a asp-action="Create" class="btn-add-client">+ Nouveau client</a>
         }
     </div>
 

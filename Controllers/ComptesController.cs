@@ -5,6 +5,7 @@ using MySqlConnector; // Namespace pour les exceptions MariaDB/MySQL
 using AkarangaBank.Web.Services;
 using AkarangaBank.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using AkarangaBank.Web.Data;
 
 namespace AkarangaBank.Web.Controllers;
 
@@ -12,33 +13,64 @@ public class ComptesController : Controller {
     private readonly ICompteService _compteService;
     private readonly IClientService _clientService;
     private readonly IAgenceService _agenceService;
+    private readonly AkarangaBankContext _context;
+    private readonly ICurrentUserService _currentUser;
 
     public ComptesController(
         ICompteService compteService, 
         IClientService clientService, 
-        IAgenceService agenceService) {
+        IAgenceService agenceService,
+        AkarangaBankContext context,
+        ICurrentUserService currentUser) {
         _compteService = compteService;
         _clientService = clientService;
         _agenceService = agenceService;
+        _context = context;
+        _currentUser = currentUser;
     }
 
     // GET: /Comptes
     public async Task<IActionResult> Index(
         string? recherche, int? agenceId, int? typeCompteId, string? statut, int page = 1) {
         const int taille = 10;
-        var vm = await _compteService.GetPagedAsync(recherche, agenceId, typeCompteId, statut, page, taille);
+        int? clientId = null;
+        if (User.IsInRole("client"))
+        {
+            clientId = await GetClientIdAsync();
+            if (!clientId.HasValue || !await AUnCompteActifAsync(clientId.Value))
+                return RedirectToAction("Index", "Home");
+            statut = "Actif";
+        }
+        else if (!EstEmployeAutorise())
+        {
+            return Forbid();
+        }
+
+        var vm = await _compteService.GetPagedAsync(recherche, agenceId, typeCompteId, statut, page, taille, clientId);
         return View(vm);
     }
 
     // GET: /Comptes/Details/5
     public async Task<IActionResult> Details(int id) {
-        var vm = await _compteService.GetDetailsAsync(id);
+        int? clientId = null;
+        if (User.IsInRole("client"))
+        {
+            clientId = await GetClientIdAsync();
+            if (!clientId.HasValue || !await AUnCompteActifAsync(clientId.Value))
+                return RedirectToAction("Index", "Home");
+            if (!await _context.Comptes.AnyAsync(c => c.Id == id && c.ClientId == clientId.Value && c.Statut == "Actif"))
+                return Forbid();
+        }
+        else if (!EstEmployeAutorise()) return Forbid();
+
+        var vm = await _compteService.GetDetailsAsync(id, clientId);
         if (vm is null) return NotFound();
         return View(vm);
     }
 
     // GET: /Comptes/Create?clientId=5
     public async Task<IActionResult> Create(int? clientId) {
+        if (!EstEmployeAutorise()) return Forbid();
         await ChargerListesAsync(clientId);
         return View(new CompteCreateViewModel { ClientId = clientId ?? 0 });
     }
@@ -47,6 +79,7 @@ public class ComptesController : Controller {
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CompteCreateViewModel vm) {
+        if (!EstEmployeAutorise()) return Forbid();
         if (!ModelState.IsValid)
         {
             await ChargerListesAsync(vm.ClientId, vm.TypeCompteId, vm.AgenceId);
@@ -75,6 +108,7 @@ public class ComptesController : Controller {
 
     // GET: /Comptes/Edit/5
     public async Task<IActionResult> Edit(int id) {
+        if (!EstEmployeAutorise()) return Forbid();
         var compte = await _compteService.GetByIdAsync(id);
         if (compte is null) return NotFound();
 
@@ -99,6 +133,7 @@ public class ComptesController : Controller {
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, CompteEditViewModel vm) {
+        if (!EstEmployeAutorise()) return Forbid();
         if (id != vm.Id) return BadRequest();
         if (!ModelState.IsValid) {
             await ChargerListesAsync(null, vm.TypeCompteId, vm.AgenceId);
@@ -114,6 +149,7 @@ public class ComptesController : Controller {
 
     // GET: /Comptes/Delete/5
     public async Task<IActionResult> Delete(int id) {
+        if (!EstEmployeAutorise()) return Forbid();
         var vm = await _compteService.GetDetailsAsync(id);
         if (vm is null) return NotFound();
         return View(vm);
@@ -124,6 +160,7 @@ public class ComptesController : Controller {
     [ValidateAntiForgeryToken]
     [Authorize(Policy = "RequireMfa")] 
     public async Task<IActionResult> DeleteConfirmed(int id) {
+        if (!EstEmployeAutorise()) return Forbid();
         try {
             var ok = await _compteService.DeleteAsync(id);
             if (!ok) return NotFound();
@@ -171,4 +208,16 @@ public class ComptesController : Controller {
             }),
             "Id", "Libelle", typeCompteId);
     }
+
+    private bool EstEmployeAutorise() =>
+        User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier") || User.IsInRole("auditeur");
+
+    private async Task<int?> GetClientIdAsync()
+    {
+        var userId = await _currentUser.GetUserIdAsync();
+        return await _context.Users.Where(u => u.Id == userId).Select(u => u.ClientId).FirstOrDefaultAsync();
+    }
+
+    private Task<bool> AUnCompteActifAsync(int clientId) =>
+        _context.Comptes.AsNoTracking().AnyAsync(c => c.ClientId == clientId && c.Statut == "Actif");
 }
