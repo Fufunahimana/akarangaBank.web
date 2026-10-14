@@ -40,7 +40,15 @@ Pour lancer ce projet en local, suivez les étapes ci-dessous :
 5. Lancez l'application en appuyant sur `F5` ou via la commande :
    ```bash
    dotnet run
-   ```
+
+Utilisez ces comptes pour tester les différents rôles :
+| Rôle | Adresse e-mail | Mot de passe |
+| --- | --- | --- |
+| Administrateur (`admin`) | `testadmin@gmail.com` | `Pr123456@` |
+| Gestionnaire (`gestionnaire`) | `testgestionnaire@gmail.com` | `Pr123456@` |
+| Auditeur (`auditeur`) | `testauditeu@gmail.com` | `Pr123456@` |
+| Guichetier (`guichetier`) | `testguichetier` | `Pr123456@` |
+| Guichetier (`client`) | `client` | `Pr123456@` |```
 
 ---
 *Université Polytechnique de Gitega (UPG) — Faculté TIC — Génie Logiciel Bac III (2025-2026)*
