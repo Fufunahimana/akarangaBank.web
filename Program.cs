@@ -141,7 +141,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope()) 
 { 
     var dbContext = scope.ServiceProvider.GetRequiredService<AkarangaBankContext>();
-    await dbContext.Database.MigrateAsync();
+    //await dbContext.Database.MigrateAsync();
     await AdminInitializer.InitializeAsync(scope.ServiceProvider); 
 } 
  
