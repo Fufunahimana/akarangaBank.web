@@ -48,7 +48,7 @@ Utilisez ces comptes pour tester les différents rôles :
 | Gestionnaire (`gestionnaire`) | `testgestionnaire@gmail.com` | `Pr123456@` |
 | Auditeur (`auditeur`) | `testauditeur@gmail.com` | `Pr123456@` |
 | Guichetier (`guichetier`) | `testguichetier` | `Pr123456@` |
-| Guichetier (`client`) | `client` | `Pr123456@` |```
+| Guichetier (`client`) | `testclient` | `Pr123456@` |```
 
 ---
 *Université Polytechnique de Gitega (UPG) — Faculté TIC — Génie Logiciel Bac III (2025-2026)*
