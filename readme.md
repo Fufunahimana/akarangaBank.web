@@ -42,12 +42,13 @@ Pour lancer ce projet en local, suivez les étapes ci-dessous :
    dotnet run
 
 Utilisez ces comptes pour tester les différents rôles :
-| Rôle | Adresse e-mail | Mot de passe |
+| Rôle | Adresse e-mail | Mot de passe |userregistredhimself@gmail.com
 | --- | --- | --- |
 | Administrateur (`admin`) | `testadmin@gmail.com` | `Pr123456@` |
 | Gestionnaire (`gestionnaire`) | `testgestionnaire@gmail.com` | `Pr123456@` |
-| Auditeur (`auditeur`) | `testauditeu@gmail.com` | `Pr123456@` |
+| Auditeur (`auditeur`) | `testauditeur@gmail.com` | `Pr123456@` |
 | Guichetier (`guichetier`) | `testguichetier` | `Pr123456@` |
+| Utilisateur etranger (`User regestred`) | `userregistredhimself@gmail.com` | `Pr123456@` |
 | Guichetier (`client`) | `client` | `Pr123456@` |```
 
 ---
