@@ -47,7 +47,8 @@ Utilisez ces comptes pour tester les différents rôles :
 | Administrateur (`admin`) | `testadmin@gmail.com` | `Pr123456@` |
 | Gestionnaire (`gestionnaire`) | `testgestionnaire@gmail.com` | `Pr123456@` |
 | Auditeur (`auditeur`) | `testauditeur@gmail.com` | `Pr123456@` |
-| Guichetier (`guichetier`) | `testguichetier` | `Pr123456@` |
+| Guichetier (`guichetier`) | `testguichetier@gmail.com` | `Pr123456@` |
+|Guichetier (`utilisateur qui a créé son compte lui meme avant l'approbation`) | `userregistredhimself` | `Pr123456@` |
 | Guichetier (`client`) | `testclient` | `Pr123456@` |```
 
 ---
