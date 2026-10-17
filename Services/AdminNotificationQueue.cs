@@ -108,9 +108,7 @@ public sealed class AdminNotificationQueue : BackgroundService, IAdminNotificati
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                var htmlMessage = notification.ActionUrl is null
-                    ? notification.HtmlMessage
-                    : BuildPersonalizedMessage(notification, recipient);
+                var htmlMessage = BuildPersonalizedMessage(notification, recipient);
                 await emailSender.SendEmailAsync(recipient.Email, notification.Subject, htmlMessage);
                 _logger.LogInformation(
                     "Notification '{Subject}' envoyée à un destinataire admin/gestionnaire.",
@@ -130,17 +128,21 @@ public sealed class AdminNotificationQueue : BackgroundService, IAdminNotificati
         var name = string.IsNullOrWhiteSpace(recipient.FullName) ? recipient.Email : recipient.FullName.Trim();
         var role = recipient.Role.Trim().ToLowerInvariant() switch
         {
-            "admin" => "Administrateur",
-            "gestionnaire" => "Gestionnaire",
+            "admin" => "admin",
+            "gestionnaire" => "gestionnaire",
             _ => recipient.Role.Trim()
         };
+        var localHour = BankTime.Now.Hour;
+        var greeting = localHour >= 18 || localHour < 6 ? "Bonsoir" : "Bonjour";
+        var actionLink = notification.ActionUrl is null
+            ? string.Empty
+            : $"<p><a href=\"{WebUtility.HtmlEncode(notification.ActionUrl)}\" " +
+              "style=\"display:inline-block;padding:12px 18px;background:#17365d;color:#ffffff;text-decoration:none;border-radius:4px;\">" +
+              $"{WebUtility.HtmlEncode(notification.ActionLabel ?? "Ouvrir")}</a></p>";
 
-        return $"<p>Bonjour {WebUtility.HtmlEncode(name)},</p>" +
-               $"<p>Vous recevez ce message en tant que <strong>{WebUtility.HtmlEncode(role)}</strong> au sein d’Akaranga Bank.</p>" +
+        return $"<p>{greeting} {WebUtility.HtmlEncode(name)} ({WebUtility.HtmlEncode(role)} chez Akaranga Bank),</p>" +
                notification.HtmlMessage +
-               $"<p><a href=\"{WebUtility.HtmlEncode(notification.ActionUrl)}\" " +
-               "style=\"display:inline-block;padding:12px 18px;background:#17365d;color:#ffffff;text-decoration:none;border-radius:4px;\">" +
-               $"{WebUtility.HtmlEncode(notification.ActionLabel ?? "Ouvrir")}</a></p>";
+               actionLink;
     }
 
     private sealed record EmailNotification(string Subject, string HtmlMessage, string? ActionUrl, string? ActionLabel);
