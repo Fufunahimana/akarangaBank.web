@@ -22,7 +22,7 @@ else
 {
     connectionString = RailwayMySqlConfiguration.GetConnectionString(builder.Configuration);
 }
-builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
+builder.Services.AddHttpClient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
 builder.Services.AddSingleton<AdminNotificationQueue>();
 builder.Services.AddSingleton<IAdminNotificationService>(services =>
     services.GetRequiredService<AdminNotificationQueue>());
