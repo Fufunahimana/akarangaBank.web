@@ -3,6 +3,7 @@ using AkarangaBank.Web.Models;
 using AkarangaBank.Web.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.Net;
 
 namespace AkarangaBank.Web.Services;
 
@@ -16,19 +17,22 @@ public class ComptabiliteService : IComptabiliteService
     private readonly ISurveillanceService _surveillance;
     private readonly IDeclarationService _declaration;
     private readonly IDetectionAvanceeService? _detection;
+    private readonly IAdminNotificationService _adminNotifications;
 
     public ComptabiliteService(
         AkarangaBankContext context,
         IConformiteService conformite,
         ISurveillanceService surveillance,
         IDeclarationService declaration,
-        IDetectionAvanceeService? detection = null)
+        IDetectionAvanceeService? detection,
+        IAdminNotificationService adminNotifications)
     {
         _context = context;
         _conformite = conformite;
         _surveillance = surveillance;
         _declaration = declaration;
         _detection = detection;
+        _adminNotifications = adminNotifications;
     }
 
     public async Task<Operation> DeposerAsync(DepotViewModel vm, int utilisateurId)
@@ -62,6 +66,8 @@ public class ComptabiliteService : IComptabiliteService
             await transaction.CommitAsync();
             transactionCommitted = true;
 
+            if (approbationAdminRequise)
+                await NotifierApprobationAmlAsync(operation, compte.NumeroCompte);
             await CreerAlertesSiNecessaireAsync(compte.ClientId, operation.Id, analyse, fractionnement, surveillance);
             await CreerAlertesAvanceesAsync(compte.ClientId, operation.Id);
             return operation;
@@ -115,6 +121,8 @@ public class ComptabiliteService : IComptabiliteService
             await transaction.CommitAsync();
             transactionCommitted = true;
 
+            if (approbationAdminRequise)
+                await NotifierApprobationAmlAsync(operation, compte.NumeroCompte);
             await CreerAlertesSiNecessaireAsync(compte.ClientId, operation.Id, analyse, fractionnement, surveillance);
             await CreerAlertesAvanceesAsync(compte.ClientId, operation.Id);
             return operation;
@@ -150,6 +158,20 @@ public class ComptabiliteService : IComptabiliteService
 
         operation.Statut = "Traitement";
         return operation;
+    }
+
+    private Task NotifierApprobationAmlAsync(Operation operation, string numeroCompte)
+    {
+        var reference = WebUtility.HtmlEncode(operation.Reference);
+        var type = WebUtility.HtmlEncode(operation.TypeOperation);
+        var compte = WebUtility.HtmlEncode(numeroCompte);
+        var montant = WebUtility.HtmlEncode($"{operation.Montant:N2} {operation.Devise}");
+        return _adminNotifications.NotifyAdminsAndManagersAsync(
+            $"Approbation AML requise — {operation.Reference}",
+            $"<p>Une opération est en attente de validation AML.</p>" +
+            $"<ul><li>Référence : {reference}</li><li>Type : {type}</li>" +
+            $"<li>Compte : {compte}</li><li>Montant : {montant}</li></ul>" +
+            "<p>Consultez la file « Approbations AML » dans Akaranga Bank.</p>");
     }
 
     private void AjouterEcrituresDepot(Operation operation, Compte compte)

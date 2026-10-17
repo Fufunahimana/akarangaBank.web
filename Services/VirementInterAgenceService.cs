@@ -2,6 +2,7 @@ using AkarangaBank.Web.Data;
 using AkarangaBank.Web.Models;
 using AkarangaBank.Web.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace AkarangaBank.Web.Services;
 
@@ -11,17 +12,20 @@ public class VirementInterAgenceService : IVirementInterAgenceService
     private readonly IConformiteService _conformite;
     private readonly IDetectionAvanceeService _detection;
     private readonly IDeclarationService _declarations;
+    private readonly IAdminNotificationService _adminNotifications;
 
     public VirementInterAgenceService(
         AkarangaBankContext context,
         IConformiteService conformite,
         IDetectionAvanceeService detection,
-        IDeclarationService declarations)
+        IDeclarationService declarations,
+        IAdminNotificationService adminNotifications)
     {
         _context = context;
         _conformite = conformite;
         _detection = detection;
         _declarations = declarations;
+        _adminNotifications = adminNotifications;
     }
 
     public async Task<VirementInterAgence> InitierAsync(VirementInterAgenceViewModel vm, int utilisateurId)
@@ -85,6 +89,14 @@ public class VirementInterAgenceService : IVirementInterAgenceService
             _context.VirementsInterAgences.Add(virementInter);
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
+            await _adminNotifications.NotifyAdminsAndManagersAsync(
+                $"Approbation de virement interagence — {virementInter.Reference}",
+                $"<p>Un virement interagence attend une approbation.</p>" +
+                $"<ul><li>Référence : {WebUtility.HtmlEncode(virementInter.Reference)}</li>" +
+                $"<li>Agence source : {WebUtility.HtmlEncode(source.Agence.Code)}</li>" +
+                $"<li>Agence destination : {WebUtility.HtmlEncode(destination.Agence.Code)}</li>" +
+                $"<li>Montant : {WebUtility.HtmlEncode($"{virementInter.Montant:N2} {virementInter.Devise}")}</li></ul>" +
+                "<p>Consultez la file des virements interagences dans Akaranga Bank.</p>");
             return virementInter;
         }
         catch

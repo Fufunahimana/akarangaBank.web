@@ -3,7 +3,7 @@
 <partial name="_OperationsStyles" />
 
 <section class="bank-page">
-    <header class="bank-page-header"><div><h1>DOS @Model.Reference</h1><p>@Model.Client.Nom @Model.Client.Prenom · @Model.Statut</p></div><a asp-action="Index" class="bank-btn bank-btn-light">Retour</a></header>
+    <header class="bank-page-header"><div><h1>DOS @Model.Reference</h1><p>@Model.Client.Nom @Model.Client.Prenom · @Model.Statut</p></div><div class="bank-actions no-print"><a asp-action="Pdf" asp-route-id="@Model.Id" class="bank-btn bank-btn-light">Télécharger PDF</a><a asp-action="Index" class="bank-btn bank-btn-light">Retour</a></div></header>
     <div class="bank-page-body">
         <dl class="bank-details"><dt>Type de déclaration</dt><dd>@Model.TypeDeclaration</dd><dt>Motif</dt><dd>@Model.MotifSuspicion</dd><dt>Créée le</dt><dd>@BankTime.ToLocal(Model.DateCreation).ToString("dd/MM/yyyy HH:mm")</dd><dt>Transmise le</dt><dd>@(Model.DateTransmission.HasValue ? BankTime.ToLocal(Model.DateTransmission.Value).ToString("dd/MM/yyyy HH:mm") : "—")</dd><dt>Réponse CNRF</dt><dd>@(Model.ReponseCNRF ?? "Aucune")</dd></dl>
         <h2 class="bank-section-title">Contenu confidentiel</h2><pre class="bank-document">@Model.Contenu</pre>

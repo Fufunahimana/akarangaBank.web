@@ -52,6 +52,18 @@
           "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.105.1, )"
+            },
+            "CsvHelper": {
+              "target": "Package",
+              "version": "[33.1.0, )"
+            },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.18.1, )"
+            },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
               "version": "[9.0.0, )"
@@ -91,6 +103,10 @@
             "QRCoder": {
               "target": "Package",
               "version": "[1.8.0, )"
+            },
+            "QuestPDF": {
+              "target": "Package",
+              "version": "[2026.9.1, )"
             }
           },
           "imports": [

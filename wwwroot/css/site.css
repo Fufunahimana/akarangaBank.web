@@ -130,7 +130,7 @@ body { margin: 0; background: #f4f7fb; color: #18263a; font-family: Inter, "Sego
 .dashboard-primary-link { display: inline-flex; min-height: 42px; align-items: center; gap: 15px; padding: 0 14px; border: 1px solid #d9e6f8; border-radius: 8px; background: #fff; color: #1a5eb9; font-size: .78rem; font-weight: 700; text-decoration: none; box-shadow: 0 2px 5px #1b35500a; }
 .dashboard-primary-link:hover { border-color: #9cbce9; background: #f6f9ff; }
 .dashboard-link-arrow { font-size: 1rem; }
-.dashboard-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; margin-bottom: 20px; }
+.dashboard-metrics { display: flex; flex-wrap: wrap; margin-bottom: 20px; }
 .metric-card { min-width: 0; min-height: 150px; padding: 19px 20px 17px; border: 1px solid #e8edf3; border-radius: 12px; background: #fff; box-shadow: 0 5px 18px #253c5708; }
 .metric-topline { display: flex; align-items: center; gap: 10px; }
 .metric-icon { display: grid; width: 33px; height: 33px; place-items: center; border-radius: 9px; background: #edf4ff; color: #2769c2; font-size: 1rem; }
@@ -255,7 +255,7 @@ html[data-theme="dark"] .bank-document { border-color: #354356; background: #202
 @media (max-width: 600px) {
     .dashboard-heading { align-items: flex-start; flex-direction: column; margin-bottom: 19px; }
     .dashboard-primary-link { width: 100%; justify-content: space-between; }
-    .dashboard-metrics { grid-template-columns: 1fr; gap: 10px; }
+    .dashboard-metrics { row-gap: 10px; }
     .metric-card { min-height: 125px; padding: 16px; }
     .dashboard-side-panels, .settings-grid { grid-template-columns: 1fr; }
     .security-settings-panel, .settings-save-note { grid-column: auto; }
@@ -270,4 +270,45 @@ html[data-theme="dark"] .bank-document { border-color: #354356; background: #202
     .setting-row, .setting-info-row { gap: 10px; }
     .language-setting-row { align-items: flex-start; flex-direction: column; }
     .settings-select { width: 100%; }
+}
+
+@media print {
+    @page { size: A4; margin: 12mm; }
+    .no-print, .bank-sidebar, .bank-topbar { display: none !important; }
+    html, body, .bank-app-shell, .bank-main-column, .bank-layout-content {
+        display: block !important;
+        width: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: #fff !important;
+        box-shadow: none !important;
+    }
+    .bank-page {
+        max-width: none !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+    .bank-page-header {
+        padding: 0 0 8mm !important;
+        border-bottom: 2px solid #c9a227 !important;
+        background: #fff !important;
+        color: #102a43 !important;
+    }
+    .bank-page-header p { color: #52606d !important; opacity: 1 !important; }
+    .bank-page-body { padding: 6mm 0 0 !important; }
+    .bank-table-wrap { overflow: visible !important; }
+    .bank-table { width: 100% !important; font-size: 8pt !important; }
+    .bank-table th, .bank-table td {
+        padding: 4px 6px !important;
+        border: 1px solid #cbd2d9 !important;
+        color: #102a43 !important;
+        white-space: normal !important;
+    }
+    .bank-table tr { break-inside: avoid; }
+    a { color: #102a43 !important; text-decoration: none !important; }
 }

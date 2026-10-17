@@ -81,3 +81,25 @@ L'application accepte aussi les variables individuelles `MYSQL*` et `MARIADB_*`.
 ### Erreur « Bad Request - Invalid Hostname »
 
 Si le navigateur affiche cette erreur avec le domaine public Railway, la requête est rejetée par l'edge Railway avant d'arriver à ASP.NET Core. Vérifiez dans **service web → Settings → Networking** que le domaine `akarangabank-production.up.railway.app` est bien généré/attaché à ce service, et non à un autre service du projet. Le Dockerfile écoute sur le port `8080` : configurez le port cible public sur `8080` si Railway le demande. Appliquez les changements puis redéployez le service web. `AllowedHosts` inclut déjà ce domaine dans `appsettings.Production.json`; le changer ne corrige pas un domaine qui n'est pas rattaché au service côté Railway.
+
+### E-mails et rapports
+
+Configurez l’envoi SMTP avec les variables d’environnement ASP.NET Core suivantes (les secrets ne doivent pas être ajoutés au dépôt) :
+
+```text
+Email__Smtp__Host
+Email__Smtp__Port                 (facultatif, 587 par défaut)
+Email__Smtp__Username              (facultatif si le serveur n’exige pas d’authentification)
+Email__Smtp__Password
+Email__Smtp__SecureSocketOptions   (facultatif : StartTls par défaut; valeurs MailKit acceptées)
+Email__FromAddress
+Email__FromName                    (facultatif, AkarangaBank par défaut)
+```
+
+Les notifications AML et les demandes d’approbation sont distribuées individuellement aux utilisateurs actifs des rôles `admin` et `gestionnaire`. Elles sont déclenchées à la création d’une alerte AML, d’une opération nécessitant l’approbation AML, d’une demande de prêt ou d’un virement interagence. Les erreurs SMTP sont consignées sans annuler l’opération déjà enregistrée.
+
+La configuration de base SMTP est présente dans `appsettings.json`; l’hôte, l’adresse d’expédition et les identifiants doivent être fournis par variables d’environnement sur chaque environnement. Un compte admin/gestionnaire actif doit également avoir une adresse e-mail renseignée. Les identifiants SMTP ne doivent jamais être commis dans Git.
+
+Les documents PDF sont générés avec QuestPDF (texte et tableaux vectoriels, en-tête bleu marine/or, pagination); les classeurs utilisent ClosedXML et les fichiers CSV utilisent CsvHelper avec le séparateur point-virgule. Les rapports consultables dans **Rapports** peuvent être exportés ou imprimés en A4. Les relevés et attestations sont accessibles depuis le compte, le contrat depuis le prêt, le reçu A5 depuis le détail d’une opération, et la déclaration PDF depuis le détail CNRF.
+
+Les états comptables sont agrégés à partir des écritures validées et des préfixes de comptes généraux actuellement utilisés (`CLIENT:`, `CAISSE:`, `PRETS_ENCOURS:`, `PRODUITS_`, `CHARGES_`, etc.). Ils ne remplacent pas une validation par la direction comptable ni un plan de comptes réglementaire (par exemple OHADA) qui n’est pas défini dans le modèle actuel.

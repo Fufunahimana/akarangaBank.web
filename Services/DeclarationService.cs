@@ -3,6 +3,7 @@ using AkarangaBank.Web.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Net;
 
 namespace AkarangaBank.Web.Services;
 
@@ -10,11 +11,16 @@ public class DeclarationService : IDeclarationService
 {
     private readonly AkarangaBankContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IAdminNotificationService _adminNotifications;
 
-    public DeclarationService(AkarangaBankContext context, IHttpContextAccessor httpContextAccessor)
+    public DeclarationService(
+        AkarangaBankContext context,
+        IHttpContextAccessor httpContextAccessor,
+        IAdminNotificationService adminNotifications)
     {
         _context = context;
         _httpContextAccessor = httpContextAccessor;
+        _adminNotifications = adminNotifications;
     }
 
     public async Task<AlerteAML> CreerAlerteAsync(int clientId, int? operationId, string typeAlerte, string niveau, string description)
@@ -60,6 +66,15 @@ public class DeclarationService : IDeclarationService
         _context.AuditLogs.Add(audit);
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
+        await _adminNotifications.NotifyAdminsAndManagersAsync(
+            $"Nouvelle alerte AML - {alerte.Niveau}",
+            $"<p>Une nouvelle alerte AML a été créée.</p>" +
+            $"<ul><li>Référence alerte : {alerte.Id}</li>" +
+            $"<li>Type : {WebUtility.HtmlEncode(alerte.TypeAlerte)}</li>" +
+            $"<li>Niveau : {WebUtility.HtmlEncode(alerte.Niveau)}</li>" +
+            $"<li>Client ID : {alerte.ClientId}</li>" +
+            $"<li>Opération ID : {alerte.OperationId?.ToString() ?? "—"}</li>" +
+            $"<li>Description : {WebUtility.HtmlEncode(alerte.Description ?? "—")}</li></ul>");
         return alerte;
     }
 

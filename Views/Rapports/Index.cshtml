@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Rapports";
+}
+
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+<partial name="_OperationsStyles" />
+
+<section class="bank-page">
+    <header class="bank-page-header">
+        <div>
+            <h1>Rapports et états comptables</h1>
+            <p>Les exports comptables sont calculés à partir des écritures d’opérations validées.</p>
+        </div>
+    </header>
+
+    <div class="bank-page-body">
+        <h2 class="bank-section-title">Documents PDF</h2>
+        <div class="bank-actions">
+            <a asp-action="AuditPdf" class="bank-btn bank-btn-light">Rapport d’audit PDF</a>
+        </div>
+        <p>Les relevés, attestations et reçus sont disponibles depuis les détails du compte ou de l’opération. Le contrat PDF est accessible depuis le détail d’un prêt. Une déclaration DOS PDF est disponible dans CNRF.</p>
+
+        <h2 class="bank-section-title">Journal comptable</h2>
+        <form method="get" asp-action="Journal" class="bank-filter no-print">
+            <div class="bank-form-group"><label for="journalDu" class="bank-label">Du</label><input id="journalDu" type="date" name="du" class="bank-control" /></div>
+            <div class="bank-form-group"><label for="journalAu" class="bank-label">Au</label><input id="journalAu" type="date" name="au" class="bank-control" /></div>
+            <div class="bank-form-group"><label for="journalType" class="bank-label">Type d’opération</label><select id="journalType" name="typeOperation" class="bank-control"><option value="">Tous les types</option><option>Depot</option><option>Retrait</option><option>Virement</option><option>Frais</option></select></div>
+            <input type="hidden" name="format" value="html" /><button type="submit" class="bank-btn bank-btn-primary">Afficher le journal</button>
+        </form>
+
+        <h2 class="bank-section-title">États comptables à consulter et imprimer</h2>
+        <div class="bank-actions">
+            <a asp-action="BalanceGenerale" class="bank-btn bank-btn-light">Balance générale</a>
+            <a asp-action="CompteResultat" class="bank-btn bank-btn-light">Compte de résultat</a>
+            <a asp-action="Bilan" class="bank-btn bank-btn-light">Bilan</a>
+            <a asp-action="PortefeuillePrets" class="bank-btn bank-btn-light">Portefeuille de prêts</a>
+        </div>
+
+        <h2 class="bank-section-title">Conformité AML</h2>
+        <p>Le rapport mensuel comprend le nombre d’alertes par niveau, les DOS transmises, les montants suspects et les dix clients les plus signalés.</p>
+        <form method="get" asp-action="RapportAmlMensuel" class="bank-filter no-print">
+            <div class="bank-form-group"><label for="amlMois" class="bank-label">Mois</label><input id="amlMois" type="number" min="1" max="12" name="mois" value="@BankTime.Today.Month" class="bank-control" /></div>
+            <div class="bank-form-group"><label for="amlAnnee" class="bank-label">Année</label><input id="amlAnnee" type="number" min="2000" max="9999" name="annee" value="@BankTime.Today.Year" class="bank-control" /></div>
+            <input type="hidden" name="format" value="html" /><button type="submit" class="bank-btn bank-btn-primary">Afficher le rapport mensuel</button>
+        </form>
+        <div class="bank-actions">
+            <a asp-controller="Conformite" asp-action="Alertes" class="bank-btn bank-btn-light">Alertes AML</a>
+        </div>
+    </div>
+</section>

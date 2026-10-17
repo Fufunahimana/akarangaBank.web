@@ -62,7 +62,7 @@ public class HomeController : Controller
             });
         }
 
-        if (!User.IsInRole("admin"))
+        if (!User.IsInRole("admin") && !User.IsInRole("gestionnaire"))
             return RedirectToAction("Index", "Clients");
 
         var soldes = await _context.Comptes.AsNoTracking()
@@ -72,6 +72,15 @@ public class HomeController : Controller
             .OrderBy(x => x.Devise)
             .ToListAsync();
         var soldesParDevise = soldes.Select(x => new DepotParDevise(x.Devise, x.Montant)).ToList();
+        var nombreComptes = await _context.Comptes.AsNoTracking()
+            .CountAsync(c => !c.NumeroCompte.StartsWith("9000"));
+        var (debutJourUtc, finJourUtc) = BankTime.GetUtcDayRange(BankTime.Today);
+        var operationsDuJour = await _context.Operations.AsNoTracking()
+            .CountAsync(o => o.DateOperation >= debutJourUtc && o.DateOperation < finJourUtc);
+        var pretsEnCours = await _context.Prets.AsNoTracking()
+            .CountAsync(p => p.Statut == "EnCours" || p.Statut == "Impaye");
+        var alertesAmlOuvertes = await _context.AlertesAML.AsNoTracking()
+            .CountAsync(a => a.Statut == "Ouverte" || a.Statut == "EnCours");
 
         var virementsEnAttente = await _context.VirementsInterAgences.AsNoTracking()
             .Where(v => v.Statut == "EnAttente")
@@ -83,8 +92,12 @@ public class HomeController : Controller
 
         var model = new AdminDashboardViewModel(
             await _context.Clients.CountAsync(),
+            nombreComptes,
             await _context.Agences.CountAsync(),
             soldesParDevise,
+            operationsDuJour,
+            pretsEnCours,
+            alertesAmlOuvertes,
             await _context.VirementsInterAgences.CountAsync(v => v.Statut == "EnAttente"),
             virementsEnAttente);
 
@@ -108,7 +121,11 @@ public sealed record DepotParDevise(string Devise, decimal Montant);
 
 public sealed record AdminDashboardViewModel(
     int NombreClients,
+    int NombreComptes,
     int NombreAgences,
     IReadOnlyList<DepotParDevise> DepotsParDevise,
+    int OperationsDuJour,
+    int PretsEnCours,
+    int AlertesAmlOuvertes,
     int VirementsEnAttente,
     IReadOnlyList<VirementInterAgence> DerniersVirementsEnAttente);

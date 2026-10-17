@@ -25,19 +25,20 @@
             : string.Empty;
 }
 
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
 <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
 @if (isAuthenticated)
 {
     <div class="bank-app-shell">
-        <aside class="bank-sidebar">
-            <a class="bank-brand" asp-controller="@(User.IsInRole("admin") || User.IsInRole("client") ? "Home" : "Clients")" asp-action="Index" aria-label="AkarangaBank, accueil">
+        <aside class="bank-sidebar no-print">
+            <a class="bank-brand" asp-controller="@(User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("client") ? "Home" : "Clients")" asp-action="Index" aria-label="AkarangaBank, accueil">
                 <span class="bank-brand-mark" aria-hidden="true">AK</span>
                 <span class="bank-brand-copy"><strong>AkarangaBank</strong><small data-i18n="nav.workspace">Espace bancaire</small></span>
             </a>
 
             <nav class="bank-sidebar-nav" aria-label="Navigation principale">
-                @if (User.IsInRole("admin"))
+                @if (User.IsInRole("admin") || User.IsInRole("gestionnaire"))
                 {
                     <p class="sidebar-section-label" data-i18n="nav.overview">VUE D’ENSEMBLE</p>
                     <a class="bank-nav-link @ActiveFor("Home", "Index")" asp-controller="Home" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z" /></svg><span data-i18n="nav.dashboard">Tableau de bord</span></a>
@@ -63,9 +64,9 @@
                 {
                     <a class="bank-nav-link @ActiveFor("Comptes")" asp-controller="Comptes" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18v13H3zM3 10h18M7 15h4M17 15h.01M6 3h12" /></svg><span>@(isClient ? "Mon compte" : "Comptes")</span></a>
                 }
-                @if (User.IsInRole("auditeur") || User.IsInRole("admin"))
+                @if (User.IsInRole("auditeur") || User.IsInRole("admin") || User.IsInRole("gestionnaire"))
                 {
-                    <a class="bank-nav-link @ActiveFor("Rapports")" asp-controller="Rapports" asp-action="AuditPdf"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l5 5v13H6zM14 3v6h6M9 14h8M9 18h8" /></svg><span>Rapport PDF</span></a>
+                    <a class="bank-nav-link @ActiveFor("Rapports")" asp-controller="Rapports" asp-action="Index"><svg class="bank-nav-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h9l5 5v13H6zM14 3v6h6M9 14h8M9 18h8" /></svg><span>Rapports</span></a>
                 }
 
                 @if (!isClient || clientHasActiveAccount)
@@ -111,7 +112,7 @@
         </aside>
 
         <div class="bank-main-column">
-            <header class="bank-topbar">
+            <header class="bank-topbar no-print">
                 <div class="topbar-context"><span data-i18n="nav.workspace">Espace bancaire</span><span class="topbar-divider">/</span><strong data-page-title="@(currentController).@(currentAction)">@ViewData["Title"]</strong></div>
                 <div class="bank-navbar-account @(isManagePage ? "is-manage-page" : string.Empty)"><partial name="_LoginPartial" /></div>
             </header>

@@ -16,18 +16,23 @@
         </a>
     </header>
 
-    <section class="dashboard-metrics" aria-label="Indicateurs de la banque">
-        <article class="metric-card metric-clients">
+    <section class="dashboard-metrics row g-3" aria-label="Indicateurs de la banque">
+        <article class="metric-card metric-clients col-12 col-md-6 col-xl-4">
             <div class="metric-topline"><span class="metric-icon" aria-hidden="true">♙</span><span class="metric-label" data-i18n="dashboard.clients">Total des clients</span></div>
             <strong class="metric-value">@Model.NombreClients.ToString("N0")</strong>
             <span class="metric-caption" data-i18n="dashboard.registeredClients">Clients enregistrés</span>
         </article>
-        <article class="metric-card metric-agencies">
+        <article class="metric-card metric-agencies col-12 col-md-6 col-xl-4">
             <div class="metric-topline"><span class="metric-icon" aria-hidden="true">▦</span><span class="metric-label" data-i18n="dashboard.agencies">Total des agences</span></div>
             <strong class="metric-value">@Model.NombreAgences.ToString("N0")</strong>
             <span class="metric-caption" data-i18n="dashboard.network">Agences dans le réseau</span>
         </article>
-        <article class="metric-card metric-deposits">
+        <article class="metric-card metric-accounts col-12 col-md-6 col-xl-4">
+            <div class="metric-topline"><span class="metric-icon" aria-hidden="true">▣</span><span class="metric-label">Comptes ouverts</span></div>
+            <strong class="metric-value">@Model.NombreComptes.ToString("N0")</strong>
+            <span class="metric-caption">Comptes clients</span>
+        </article>
+        <article class="metric-card metric-deposits col-12 col-md-6 col-xl-4">
             <div class="metric-topline"><span class="metric-icon" aria-hidden="true">◈</span><span class="metric-label" data-i18n="dashboard.deposits">Dépôts des clients</span></div>
             @if (Model.DepotsParDevise.Count == 0)
             {
@@ -43,6 +48,21 @@
                 </div>
             }
             <span class="metric-caption" data-i18n="dashboard.customerBalances">Soldes des comptes clients, par devise</span>
+        </article>
+        <article class="metric-card metric-operations col-12 col-md-6 col-xl-4">
+            <div class="metric-topline"><span class="metric-icon" aria-hidden="true">↔</span><span class="metric-label">Opérations du jour</span></div>
+            <strong class="metric-value">@Model.OperationsDuJour.ToString("N0")</strong>
+            <span class="metric-caption">Toutes les opérations enregistrées aujourd’hui</span>
+        </article>
+        <article class="metric-card metric-loans col-12 col-md-6 col-xl-4">
+            <div class="metric-topline"><span class="metric-icon" aria-hidden="true">₣</span><span class="metric-label">Prêts en cours</span></div>
+            <strong class="metric-value">@Model.PretsEnCours.ToString("N0")</strong>
+            <span class="metric-caption">Prêts en cours ou en impayé</span>
+        </article>
+        <article class="metric-card metric-alerts col-12 col-md-6 col-xl-4">
+            <div class="metric-topline"><span class="metric-icon" aria-hidden="true">!</span><span class="metric-label">Alertes AML ouvertes</span></div>
+            <strong class="metric-value">@Model.AlertesAmlOuvertes.ToString("N0")</strong>
+            <span class="metric-caption">Alertes à traiter ou en cours</span>
         </article>
     </section>
 
@@ -94,8 +114,12 @@
             <article class="dashboard-panel quick-actions-panel">
                 <div class="panel-heading"><div><p class="panel-kicker" data-i18n="dashboard.shortcuts">RACCOURCIS</p><h2 data-i18n="dashboard.quickActions">Actions rapides</h2></div></div>
                 <a class="quick-action-link" asp-controller="Clients" asp-action="Index"><span class="quick-action-icon">♙</span><span data-i18n="dashboard.manageClients">Gérer les clients</span><span aria-hidden="true">→</span></a>
-                <a class="quick-action-link" asp-controller="Agences" asp-action="Index"><span class="quick-action-icon">▦</span><span data-i18n="dashboard.manageAgencies">Gérer les agences</span><span aria-hidden="true">→</span></a>
-                <a class="quick-action-link" asp-controller="AdminUtilisateurs" asp-action="Index"><span class="quick-action-icon">♧</span><span data-i18n="dashboard.manageUsers">Gérer les utilisateurs</span><span aria-hidden="true">→</span></a>
+                @if (User.IsInRole("admin"))
+                {
+                    <a class="quick-action-link" asp-controller="Agences" asp-action="Index"><span class="quick-action-icon">▦</span><span data-i18n="dashboard.manageAgencies">Gérer les agences</span><span aria-hidden="true">→</span></a>
+                    <a class="quick-action-link" asp-controller="AdminUtilisateurs" asp-action="Index"><span class="quick-action-icon">♧</span><span data-i18n="dashboard.manageUsers">Gérer les utilisateurs</span><span aria-hidden="true">→</span></a>
+                }
+                <a class="quick-action-link" asp-controller="Rapports" asp-action="Index"><span class="quick-action-icon">▤</span><span>Consulter les rapports</span><span aria-hidden="true">→</span></a>
             </article>
             <article class="approval-note-card">
                 <span class="approval-note-icon" aria-hidden="true">⛨</span>

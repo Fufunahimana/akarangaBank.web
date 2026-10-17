@@ -1,0 +1,52 @@
+@model AkarangaBank.Web.ViewModels.ReportTableViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<partial name="_OperationsStyles" />
+
+<section class="bank-page print-report">
+    <header class="bank-page-header">
+        <div>
+            <p class="report-kicker">AKARANGA BANK · RAPPORT</p>
+            <h1>@Model.Title</h1>
+            <p>Généré le @BankTime.ToLocal(DateTime.UtcNow).ToString("dd/MM/yyyy HH:mm")</p>
+        </div>
+        <div class="bank-actions no-print">
+            <a asp-action="@Model.ActionName" asp-all-route-data="@Model.RouteValues" asp-route-format="xlsx" class="bank-btn bank-btn-light">Exporter Excel</a>
+            <a asp-action="@Model.ActionName" asp-all-route-data="@Model.RouteValues" asp-route-format="csv" class="bank-btn bank-btn-light">Exporter CSV</a>
+            <button type="button" class="bank-btn bank-btn-secondary" onclick="window.print()">Imprimer</button>
+        </div>
+    </header>
+    <div class="bank-page-body">
+        <div class="bank-table-wrap">
+            <table class="bank-table table table-striped table-sm">
+                <thead>
+                    <tr>
+                        @foreach (var heading in Model.Table.Headers)
+                        {
+                            <th scope="col">@heading</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Table.Rows.Count == 0)
+                    {
+                        <tr><td colspan="@Model.Table.Headers.Count" class="bank-empty">Aucune donnée pour cette période.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var row in Model.Table.Rows)
+                        {
+                            <tr>
+                                @foreach (var cell in row)
+                                {
+                                    <td>@cell</td>
+                                }
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

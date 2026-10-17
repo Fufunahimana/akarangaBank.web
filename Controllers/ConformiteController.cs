@@ -1,4 +1,5 @@
 using AkarangaBank.Web.Services;
+using AkarangaBank.Web.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,15 +11,18 @@ public class ConformiteController : Controller
     private readonly IDeclarationService _declarationService;
     private readonly IConformiteService _conformiteService;
     private readonly ICurrentUserService _currentUser;
+    private readonly AkarangaBankContext _context;
 
     public ConformiteController(
         IDeclarationService declarationService,
         IConformiteService conformiteService,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        AkarangaBankContext context)
     {
         _declarationService = declarationService;
         _conformiteService = conformiteService;
         _currentUser = currentUser;
+        _context = context;
     }
 
     public async Task<IActionResult> Alertes(string? statut, string? niveau)
@@ -34,7 +38,33 @@ public class ConformiteController : Controller
     {
         var alertes = await _declarationService.GetAlertesAsync(statut, niveau);
         var fileName = $"alertes-aml-{BankTime.ToLocal(DateTime.UtcNow):yyyyMMdd-HHmmss}.csv";
-        return File(AmlCsvExport.Build(alertes), "text/csv; charset=utf-8", fileName);
+        var file = AmlCsvExport.Build(alertes);
+        await EnregistrerExportAuditAsync("ExportAlertesAmlCsv", statut, niveau);
+        return File(file, "text/csv; charset=utf-8", fileName);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ExporterExcel(string? statut, string? niveau)
+    {
+        var alertes = (await _declarationService.GetAlertesAsync(statut, niveau)).ToList();
+        var table = new SpreadsheetTable(
+            ["Id alerte", "Date locale", "Numéro client", "Nom du client", "Type", "Niveau", "Statut", "Référence opération", "Description"],
+            alertes.Select(alert => (IReadOnlyList<object?>)[
+                alert.Id,
+                BankTime.ToLocal(alert.DateAlerte),
+                alert.Client.NumeroClient,
+                $"{alert.Client.Prenom} {alert.Client.Nom}",
+                alert.TypeAlerte,
+                alert.Niveau,
+                alert.Statut,
+                alert.Operation?.Reference ?? "",
+                alert.Description ?? ""
+            ]).ToList());
+        var fileName = $"alertes-aml-{BankTime.ToLocal(DateTime.UtcNow):yyyyMMdd-HHmmss}.xlsx";
+        var file = SpreadsheetExport.BuildXlsx(table);
+        await EnregistrerExportAuditAsync("ExportAlertesAmlExcel", statut, niveau);
+        return File(file,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
     }
 
     public async Task<IActionResult> Details(int id)
@@ -64,5 +94,20 @@ public class ConformiteController : Controller
         ViewBag.ClientId = id;
         ViewBag.Risque = await _conformiteService.EvaluerRisqueClientAsync(id);
         return View();
+    }
+
+    private async Task EnregistrerExportAuditAsync(string action, string? statut, string? niveau)
+    {
+        var userId = await _currentUser.GetUserIdAsync();
+        _context.AuditLogs.Add(new AkarangaBank.Web.Models.AuditLog
+        {
+            DateEvenement = DateTime.UtcNow,
+            UtilisateurId = userId,
+            Action = action,
+            TableConcernee = "AlertesAML",
+            AdresseIP = HttpContext.Connection.RemoteIpAddress?.ToString(),
+            Details = $"Export des alertes AML. Statut={statut ?? "tous"}; niveau={niveau ?? "tous"}."
+        });
+        await _context.SaveChangesAsync();
     }
 }

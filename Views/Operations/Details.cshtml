@@ -7,7 +7,7 @@
     var credits = Model.Ecritures.Where(e => e.Sens == "Credit").Sum(e => e.Montant);
 }
 <section class="bank-page">
-    <header class="bank-page-header"><div><h1>Opération @Model.Reference</h1><p>@Model.TypeOperation · @Model.Statut</p></div><a asp-action="Journal" class="bank-btn bank-btn-light">Retour au journal</a></header>
+    <header class="bank-page-header"><div><h1>Opération @Model.Reference</h1><p>@Model.TypeOperation · @Model.Statut</p></div><div class="bank-actions no-print">@if (Model.Statut == "Valide") { <a asp-controller="Rapports" asp-action="RecuOperationPdf" asp-route-id="@Model.Id" class="bank-btn bank-btn-light">Reçu PDF A5</a> }<button type="button" class="bank-btn bank-btn-secondary" onclick="window.print()">Imprimer</button><a asp-action="Journal" class="bank-btn bank-btn-light">Retour au journal</a></div></header>
     <div class="bank-page-body">
         <dl class="bank-details"><dt>Date</dt><dd>@BankTime.ToLocal(Model.DateOperation).ToString("dd/MM/yyyy HH:mm")</dd><dt>Compte</dt><dd>@Model.Compte.NumeroCompte · @Model.Compte.Client.Nom @Model.Compte.Client.Prenom</dd><dt>Montant</dt><dd>@Model.Montant.ToString("N2") @Model.Devise</dd><dt>Statut</dt><dd>@Model.Statut</dd></dl>
         <h2 class="bank-section-title">Écritures comptables (@Model.Ecritures.Count)</h2>

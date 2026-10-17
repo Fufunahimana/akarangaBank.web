@@ -3,7 +3,14 @@
 <partial name="_OperationsStyles" />
 
 <section class="bank-page">
-    <header class="bank-page-header"><div><h1>Prêt @Model.Reference</h1><p>@Model.TypePret.Libelle · @Model.Statut</p></div><a asp-action="Index" class="bank-btn bank-btn-light">Retour à la liste</a></header>
+    <header class="bank-page-header">
+        <div><h1>Prêt @Model.Reference</h1><p>@Model.TypePret.Libelle · @Model.Statut</p></div>
+        <div class="bank-actions no-print">
+            <a asp-controller="Rapports" asp-action="ContratPretPdf" asp-route-id="@Model.Id" class="bank-btn bank-btn-light">Télécharger le contrat PDF</a>
+            <button type="button" class="bank-btn bank-btn-secondary" onclick="window.print()">Imprimer</button>
+            <a asp-action="Index" class="bank-btn bank-btn-light">Retour à la liste</a>
+        </div>
+    </header>
     <div class="bank-page-body">
         @if (TempData["Success"] is string success) { <div class="bank-flash" role="status">@success</div> }
         @if (TempData["Error"] is string error) { <div class="bank-flash-error" role="alert">@error</div> }

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Net;
 using AkarangaBank.Web.Data;
 using AkarangaBank.Web.Models;
 using AkarangaBank.Web.ViewModels;
@@ -11,8 +12,13 @@ public class PretService : IPretService
     private const decimal TauxPenaliteMensuel = 0.005m;
     private const decimal PenaliteMinimum = 500m;
     private readonly AkarangaBankContext _context;
+    private readonly IAdminNotificationService _adminNotifications;
 
-    public PretService(AkarangaBankContext context) => _context = context;
+    public PretService(AkarangaBankContext context, IAdminNotificationService adminNotifications)
+    {
+        _context = context;
+        _adminNotifications = adminNotifications;
+    }
 
     public decimal CalculerMensualite(decimal principal, decimal tauxAnnuel, int dureeMois)
     {
@@ -104,6 +110,14 @@ public class PretService : IPretService
         };
         _context.Prets.Add(pret);
         await _context.SaveChangesAsync();
+        await _adminNotifications.NotifyAdminsAndManagersAsync(
+            $"Approbation de prêt requise — {pret.Reference}",
+            $"<p>Une nouvelle demande de prêt attend une décision.</p>" +
+            $"<ul><li>Référence : {WebUtility.HtmlEncode(pret.Reference)}</li>" +
+            $"<li>Produit : {WebUtility.HtmlEncode(type.Libelle)}</li>" +
+            $"<li>Montant : {WebUtility.HtmlEncode($"{pret.MontantPrincipal:N2} {compte.Devise}")}</li>" +
+            $"<li>Durée : {pret.DureeMois} mois</li></ul>" +
+            "<p>Consultez la demande dans la file des prêts Akaranga Bank.</p>");
         return pret;
     }
 

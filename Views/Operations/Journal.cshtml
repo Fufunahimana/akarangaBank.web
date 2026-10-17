@@ -5,6 +5,7 @@
 <section class="bank-page">
     <header class="bank-page-header">
         <div><h1>Journal des opérations</h1><p>@Model.Total opération(s) enregistrée(s)</p></div>
+        <div class="bank-actions no-print"><button type="button" class="bank-btn bank-btn-light" onclick="window.print()">Imprimer le journal</button></div>
         @if (User.IsInRole("admin") || User.IsInRole("gestionnaire") || User.IsInRole("guichetier"))
         {
             <div class="bank-actions">

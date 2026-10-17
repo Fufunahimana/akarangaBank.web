@@ -11,10 +11,11 @@ using System;
 using System.Reflection;
 
 [assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap5")]
+[assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("c04f398a-2e60-48f1-9073-7e93265ebdff")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("AkarangaBank.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+677b8d17b7765316ecf2ec262a0c06801973fb5e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+107b478df129042295b2020121e63da34c4c8a75")]
 [assembly: System.Reflection.AssemblyProductAttribute("AkarangaBank.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AkarangaBank.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

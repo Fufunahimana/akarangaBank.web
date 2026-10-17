@@ -15,7 +15,12 @@
             <h1>Détails du compte</h1>
             <p>@compte.NumeroCompte · @(client is null ? "Client non renseigné" : $"{client.Prenom} {client.Nom}")</p>
         </div>
-        <nav class="bank-actions" aria-label="Actions sur le compte">
+        <nav class="bank-actions no-print" aria-label="Actions sur le compte">
+            <a asp-controller="Rapports" asp-action="RelevePdf" asp-route-id="@compte.Id" class="bank-btn bank-btn-light">Télécharger le relevé PDF</a>
+            <a asp-controller="Rapports" asp-action="Releve" asp-route-id="@compte.Id" asp-route-format="csv" class="bank-btn bank-btn-light">Relevé CSV</a>
+            <a asp-controller="Rapports" asp-action="Releve" asp-route-id="@compte.Id" asp-route-format="xlsx" class="bank-btn bank-btn-light">Relevé Excel</a>
+            <a asp-controller="Rapports" asp-action="AttestationSoldePdf" asp-route-id="@compte.Id" class="bank-btn bank-btn-light">Attestation de solde PDF</a>
+            <button type="button" class="bank-btn bank-btn-secondary" onclick="window.print()">Imprimer</button>
             @if (!User.IsInRole("auditeur"))
             {
                 <a asp-action="Edit" asp-route-id="@compte.Id" class="bank-btn bank-btn-light">Modifier</a>

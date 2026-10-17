@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args); 
+
+// Le dépôt est un projet académique; choisir explicitement la licence Community de QuestPDF.
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
  
 // --- Base de données (MariaDB / MySqlConnector) --- 
 var connectionString = builder.Configuration.GetConnectionString("AkarangaBank");
@@ -20,6 +23,11 @@ else
     connectionString = RailwayMySqlConfiguration.GetConnectionString(builder.Configuration);
 }
 builder.Services.AddTransient<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, EmailSender>();
+builder.Services.AddSingleton<AdminNotificationQueue>();
+builder.Services.AddSingleton<IAdminNotificationService>(services =>
+    services.GetRequiredService<AdminNotificationQueue>());
+builder.Services.AddHostedService(services =>
+    services.GetRequiredService<AdminNotificationQueue>());
 builder.Services.AddDbContext<AkarangaBankContext>(options => 
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))); 
 builder.Services.AddHealthChecks()

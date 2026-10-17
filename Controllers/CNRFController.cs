@@ -63,4 +63,43 @@ public class CNRFController : Controller
         var declaration = (await _service.GetDeclarationsAsync(null)).FirstOrDefault(d => d.Id == id);
         return declaration is null ? NotFound() : View(declaration);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Pdf(int id)
+    {
+        var declaration = (await _service.GetDeclarationsAsync(null)).FirstOrDefault(d => d.Id == id);
+        if (declaration is null)
+            return NotFound();
+
+        var operation = declaration.Alerte.Operation;
+        var pdf = PdfReportBuilder.BuildCnrfDeclaration(
+            declaration.Reference,
+            declaration.DateCreation,
+            $"{declaration.Client.Nom} {declaration.Client.Prenom}",
+            declaration.Client.NumeroClient,
+            declaration.Client.NumeroCNI,
+            declaration.Client.Telephone ?? "Non renseigné",
+            operation?.Reference,
+            operation?.TypeOperation,
+            operation?.Montant,
+            operation?.Devise,
+            operation?.DateOperation,
+            declaration.Alerte.TypeAlerte,
+            declaration.Alerte.Niveau,
+            declaration.MotifSuspicion ?? declaration.Alerte.Description ?? "Motif non renseigné.");
+
+        var userId = await _currentUser.GetUserIdAsync();
+        _context.AuditLogs.Add(new AkarangaBank.Web.Models.AuditLog
+        {
+            DateEvenement = DateTime.UtcNow,
+            UtilisateurId = userId,
+            Action = "GenerationDeclarationCNRF",
+            TableConcernee = "DeclarationsSoupcon",
+            EnregistrementId = declaration.Id,
+            AdresseIP = HttpContext.Connection.RemoteIpAddress?.ToString(),
+            Details = $"Document PDF CNRF généré pour la déclaration {declaration.Reference}."
+        });
+        await _context.SaveChangesAsync();
+        return File(pdf, "application/pdf", $"declaration-cnrf-{declaration.Reference}.pdf");
+    }
 }

@@ -96,6 +96,7 @@ public class CNRFService : ICNRFService
         var query = _context.DeclarationsSoupcon
             .Include(d => d.Client)
             .Include(d => d.Alerte)
+                .ThenInclude(a => a.Operation)
             .Include(d => d.RedigePar)
             .AsNoTracking()
             .AsQueryable();

@@ -5,7 +5,7 @@
 <section class="bank-page">
     <header class="bank-page-header">
         <div><h1>Alertes AML</h1><p>Alertes de conformité et de surveillance</p></div>
-        <a asp-action="ExporterCsv" asp-route-statut="@ViewBag.Statut" asp-route-niveau="@ViewBag.Niveau" class="bank-btn bank-btn-light">Exporter CSV</a>
+        <div class="bank-actions no-print"><a asp-action="ExporterCsv" asp-route-statut="@ViewBag.Statut" asp-route-niveau="@ViewBag.Niveau" class="bank-btn bank-btn-light">Exporter CSV</a><a asp-action="ExporterExcel" asp-route-statut="@ViewBag.Statut" asp-route-niveau="@ViewBag.Niveau" class="bank-btn bank-btn-light">Exporter Excel</a><button type="button" class="bank-btn bank-btn-light" onclick="window.print()">Imprimer</button></div>
     </header>
     <div class="bank-page-body">
         @if (TempData["Success"] is string msg) { <div class="bank-flash" role="status">@msg</div> }
