@@ -96,6 +96,8 @@ Email__FromAddress
 Email__FromName                    (facultatif, AkarangaBank par défaut)
 ```
 
+Pour que les liens des e-mails ouvrent le bon environnement, définissez `Application__BaseUrl` dans les variables du service web Railway avec son adresse publique, par exemple `https://akarangabank-production.up.railway.app`. Si vous utilisez un domaine personnalisé, utilisez ce domaine à la place. Après déploiement, chaque notification de virement interagence salue le destinataire par son nom et son rôle, puis propose le bouton **Ouvrir la file d’approbation**. Le destinataire doit se connecter à Akaranga Bank avant d’accéder à cette page; seul un administrateur peut valider ou rejeter un virement.
+
 Les notifications AML et les demandes d’approbation sont distribuées individuellement aux utilisateurs actifs des rôles `admin` et `gestionnaire`. Elles sont déclenchées à la création d’une alerte AML, d’une opération nécessitant l’approbation AML, d’une demande de prêt ou d’un virement interagence. Les erreurs SMTP sont consignées sans annuler l’opération déjà enregistrée.
 
 La configuration de base SMTP est présente dans `appsettings.json`; l’hôte, l’adresse d’expédition et les identifiants doivent être fournis par variables d’environnement sur chaque environnement. Un compte admin/gestionnaire actif doit également avoir une adresse e-mail renseignée. Les identifiants SMTP ne doivent jamais être commis dans Git.

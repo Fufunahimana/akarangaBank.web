@@ -3,6 +3,7 @@ using AkarangaBank.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 
 namespace AkarangaBank.Web.Services;
 
@@ -31,7 +32,18 @@ public sealed class AdminNotificationQueue : BackgroundService, IAdminNotificati
         string subject,
         string htmlMessage,
         CancellationToken cancellationToken = default) =>
-        _notifications.Writer.WriteAsync(new EmailNotification(subject, htmlMessage), cancellationToken).AsTask();
+        EnqueueAsync(new EmailNotification(subject, htmlMessage, null, null), cancellationToken);
+
+    public Task NotifyAdminsAndManagersAsync(
+        string subject,
+        string htmlMessage,
+        string actionUrl,
+        string actionLabel,
+        CancellationToken cancellationToken = default) =>
+        EnqueueAsync(new EmailNotification(subject, htmlMessage, actionUrl, actionLabel), cancellationToken);
+
+    private Task EnqueueAsync(EmailNotification notification, CancellationToken cancellationToken) =>
+        _notifications.Writer.WriteAsync(notification, cancellationToken).AsTask();
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -58,34 +70,32 @@ public sealed class AdminNotificationQueue : BackgroundService, IAdminNotificati
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
         var authorizedRoles = new HashSet<string>(new[] { "admin", "gestionnaire" }, StringComparer.OrdinalIgnoreCase);
-        var recipients = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var recipients = new Dictionary<string, NotificationRecipient>(StringComparer.OrdinalIgnoreCase);
 
         // Some existing accounts have their role in ApplicationUser.Role but do not
         // have a corresponding row in AspNetUserRoles. Include both representations.
         var activeUsers = await userManager.Users
             .Where(user => user.EstActif && user.Email != null)
-            .Select(user => new { user.Email, user.Role })
+            .Select(user => new { user.Email, user.NomComplet, user.Role })
             .ToListAsync(cancellationToken);
         foreach (var user in activeUsers)
         {
             if (!string.IsNullOrWhiteSpace(user.Email)
                 && authorizedRoles.Contains(user.Role?.Trim() ?? string.Empty))
-                recipients.Add(user.Email!);
+                recipients.TryAdd(user.Email!, new NotificationRecipient(user.Email!, user.NomComplet, user.Role!));
         }
 
         foreach (var role in authorizedRoles)
         {
             var users = await userManager.GetUsersInRoleAsync(role);
-            foreach (var user in users
-                .Where(user => user.EstActif && !string.IsNullOrWhiteSpace(user.Email))
-                .Select(user => user.Email!))
+            foreach (var user in users.Where(user => user.EstActif && !string.IsNullOrWhiteSpace(user.Email)))
             {
-                recipients.Add(user);
+                var email = user.Email!;
+                recipients.TryAdd(email, new NotificationRecipient(email, user.NomComplet, role));
             }
         }
 
-        var distinctRecipients = recipients.ToList();
-        if (distinctRecipients.Count == 0)
+        if (recipients.Count == 0)
         {
             _logger.LogWarning(
                 "Notification '{Subject}' non envoyée : aucun destinataire admin/gestionnaire actif avec e-mail.",
@@ -93,12 +103,15 @@ public sealed class AdminNotificationQueue : BackgroundService, IAdminNotificati
             return;
         }
 
-        foreach (var recipient in distinctRecipients)
+        foreach (var recipient in recipients.Values)
         {
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                await emailSender.SendEmailAsync(recipient, notification.Subject, notification.HtmlMessage);
+                var htmlMessage = notification.ActionUrl is null
+                    ? notification.HtmlMessage
+                    : BuildPersonalizedMessage(notification, recipient);
+                await emailSender.SendEmailAsync(recipient.Email, notification.Subject, htmlMessage);
                 _logger.LogInformation(
                     "Notification '{Subject}' envoyée à un destinataire admin/gestionnaire.",
                     notification.Subject);
@@ -112,5 +125,24 @@ public sealed class AdminNotificationQueue : BackgroundService, IAdminNotificati
         }
     }
 
-    private sealed record EmailNotification(string Subject, string HtmlMessage);
+    private static string BuildPersonalizedMessage(EmailNotification notification, NotificationRecipient recipient)
+    {
+        var name = string.IsNullOrWhiteSpace(recipient.FullName) ? recipient.Email : recipient.FullName.Trim();
+        var role = recipient.Role.Trim().ToLowerInvariant() switch
+        {
+            "admin" => "Administrateur",
+            "gestionnaire" => "Gestionnaire",
+            _ => recipient.Role.Trim()
+        };
+
+        return $"<p>Bonjour {WebUtility.HtmlEncode(name)},</p>" +
+               $"<p>Vous recevez ce message en tant que <strong>{WebUtility.HtmlEncode(role)}</strong> au sein d’Akaranga Bank.</p>" +
+               notification.HtmlMessage +
+               $"<p><a href=\"{WebUtility.HtmlEncode(notification.ActionUrl)}\" " +
+               "style=\"display:inline-block;padding:12px 18px;background:#17365d;color:#ffffff;text-decoration:none;border-radius:4px;\">" +
+               $"{WebUtility.HtmlEncode(notification.ActionLabel ?? "Ouvrir")}</a></p>";
+    }
+
+    private sealed record EmailNotification(string Subject, string HtmlMessage, string? ActionUrl, string? ActionLabel);
+    private sealed record NotificationRecipient(string Email, string? FullName, string Role);
 }

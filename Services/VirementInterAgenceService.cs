@@ -13,19 +13,25 @@ public class VirementInterAgenceService : IVirementInterAgenceService
     private readonly IDetectionAvanceeService _detection;
     private readonly IDeclarationService _declarations;
     private readonly IAdminNotificationService _adminNotifications;
+    private readonly IConfiguration _configuration;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public VirementInterAgenceService(
         AkarangaBankContext context,
         IConformiteService conformite,
         IDetectionAvanceeService detection,
         IDeclarationService declarations,
-        IAdminNotificationService adminNotifications)
+        IAdminNotificationService adminNotifications,
+        IConfiguration configuration,
+        IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
         _conformite = conformite;
         _detection = detection;
         _declarations = declarations;
         _adminNotifications = adminNotifications;
+        _configuration = configuration;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<VirementInterAgence> InitierAsync(VirementInterAgenceViewModel vm, int utilisateurId)
@@ -96,7 +102,9 @@ public class VirementInterAgenceService : IVirementInterAgenceService
                 $"<li>Agence source : {WebUtility.HtmlEncode(source.Agence.Code)}</li>" +
                 $"<li>Agence destination : {WebUtility.HtmlEncode(destination.Agence.Code)}</li>" +
                 $"<li>Montant : {WebUtility.HtmlEncode($"{virementInter.Montant:N2} {virementInter.Devise}")}</li></ul>" +
-                "<p>Consultez la file des virements interagences dans Akaranga Bank.</p>");
+                "<p>Consultez la file des virements interagences dans Akaranga Bank.</p>",
+                GetApprovalQueueUrl(),
+                "Ouvrir la file d’approbation");
             return virementInter;
         }
         catch
@@ -104,6 +112,21 @@ public class VirementInterAgenceService : IVirementInterAgenceService
             await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    private string GetApprovalQueueUrl()
+    {
+        var configuredBaseUrl = _configuration["Application:BaseUrl"];
+        var request = _httpContextAccessor.HttpContext?.Request;
+        var baseUrl = string.IsNullOrWhiteSpace(configuredBaseUrl)
+            ? request is null ? null : $"{request.Scheme}://{request.Host}"
+            : configuredBaseUrl;
+
+        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri)
+            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+            throw new InvalidOperationException("L’URL publique de l’application n’est pas configurée.");
+
+        return $"{baseUrl!.TrimEnd('/')}/VirementsInterAgences/Index";
     }
 
     public async Task<bool> ValiderAsync(int virementInterAgenceId, int valideParId)
