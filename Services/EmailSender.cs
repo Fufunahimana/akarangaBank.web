@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Identity.UI.Services;
 
@@ -10,11 +11,13 @@ public sealed class EmailSender : IEmailSender
     private const string BrevoSendEmailEndpoint = "https://api.brevo.com/v3/smtp/email";
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _configuration;
+    private readonly ILogger<EmailSender> _logger;
 
-    public EmailSender(HttpClient httpClient, IConfiguration configuration)
+    public EmailSender(HttpClient httpClient, IConfiguration configuration, ILogger<EmailSender> logger)
     {
         _httpClient = httpClient;
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
@@ -41,7 +44,30 @@ public sealed class EmailSender : IEmailSender
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
         using var response = await _httpClient.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        var responseBody = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+        {
+            var details = responseBody.Length <= 1000 ? responseBody : responseBody[..1000];
+            throw new HttpRequestException(
+                $"L'API Brevo a refusé l'e-mail (HTTP {(int)response.StatusCode}) : {details}",
+                null,
+                response.StatusCode);
+        }
+
+        string? messageId = null;
+        try
+        {
+            using var document = JsonDocument.Parse(responseBody);
+            if (document.RootElement.TryGetProperty("messageId", out var id)
+                && id.ValueKind == JsonValueKind.String)
+                messageId = id.GetString();
+        }
+        catch (JsonException)
+        {
+            // Brevo accepted the request; the body may be empty or use a future response format.
+        }
+
+        _logger.LogInformation("Brevo a accepté un e-mail transactionnel. MessageId={MessageId}", messageId ?? "non fourni");
     }
 
     private sealed record BrevoEmailRequest(

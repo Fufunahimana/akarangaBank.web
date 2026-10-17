@@ -144,6 +144,11 @@ builder.Services.AddRazorPages(options =>
 }); 
  
 var app = builder.Build(); 
+
+if (string.IsNullOrWhiteSpace(app.Configuration["Email:ApiKey"]))
+    app.Logger.LogWarning("Clé API Brevo absente. Configurez Email__ApiKey pour activer l'envoi d'e-mails.");
+if (string.IsNullOrWhiteSpace(app.Configuration["Email:FromAddress"]))
+    app.Logger.LogWarning("Adresse expéditeur absente. Configurez Email__FromAddress pour activer l'envoi d'e-mails.");
  
 // --- Initialisation de la base (migrations, rôles + admin) --- 
 using (var scope = app.Services.CreateScope()) 

@@ -98,6 +98,8 @@ Pour que les liens des e-mails ouvrent le bon environnement, définissez `Applic
 
 Les notifications AML et les demandes d’approbation sont distribuées individuellement aux utilisateurs actifs des rôles `admin` et `gestionnaire`. Elles sont déclenchées à la création d’une alerte AML, d’une opération nécessitant l’approbation AML, d’une demande de prêt ou d’un virement interagence. Les erreurs de l’API Brevo sont consignées sans annuler l’opération déjà enregistrée.
 
+Un déploiement ne déclenche pas à lui seul un e-mail. Après le déploiement, créez un nouvel événement (par exemple une alerte AML) pour vérifier l’envoi. Les journaux de production indiquent maintenant si la notification a été mise en file, combien de destinataires sont trouvés, et si Brevo l’a acceptée avec un identifiant de message. Une acceptation par Brevo confirme la prise en charge, pas nécessairement la livraison en boîte de réception; vérifiez alors **Brevo → Transactional → Logs**.
+
 Un compte admin/gestionnaire actif doit également avoir une adresse e-mail renseignée. La clé API Brevo ne doit jamais être commise dans Git.
 
 Les documents PDF sont générés avec QuestPDF (texte et tableaux vectoriels, en-tête bleu marine/or, pagination); les classeurs utilisent ClosedXML et les fichiers CSV utilisent CsvHelper avec le séparateur point-virgule. Les rapports consultables dans **Rapports** peuvent être exportés ou imprimés en A4. Les relevés et attestations sont accessibles depuis le compte, le contrat depuis le prêt, le reçu A5 depuis le détail d’une opération, et la déclaration PDF depuis le détail CNRF.

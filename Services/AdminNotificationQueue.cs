@@ -42,8 +42,11 @@ public sealed class AdminNotificationQueue : BackgroundService, IAdminNotificati
         CancellationToken cancellationToken = default) =>
         EnqueueAsync(new EmailNotification(subject, htmlMessage, actionUrl, actionLabel), cancellationToken);
 
-    private Task EnqueueAsync(EmailNotification notification, CancellationToken cancellationToken) =>
-        _notifications.Writer.WriteAsync(notification, cancellationToken).AsTask();
+    private async Task EnqueueAsync(EmailNotification notification, CancellationToken cancellationToken)
+    {
+        await _notifications.Writer.WriteAsync(notification, cancellationToken);
+        _logger.LogInformation("Notification e-mail '{Subject}' ajoutée à la file d'envoi.", notification.Subject);
+    }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -102,6 +105,11 @@ public sealed class AdminNotificationQueue : BackgroundService, IAdminNotificati
                 notification.Subject);
             return;
         }
+
+        _logger.LogInformation(
+            "Envoi de la notification '{Subject}' à {RecipientCount} destinataire(s) admin/gestionnaire.",
+            notification.Subject,
+            recipients.Count);
 
         foreach (var recipient in recipients.Values)
         {
